@@ -1,15 +1,33 @@
 describe("Player", function() {
-  var Profile = require('../../src/profile.js');
-  var profile;
+  var Calculator = require('../../src/calculator.js');
+  var calculator;
 
   beforeEach(function() {
-    profile = new Profile(10000);
+    calculator = new Calculator(50000);
   });
 
-  fit("should be able to play a Song", function() {
-    console.log(Profile);
-    expect(profile.income).toEqual(10000);
-  });
+
+  fdescribe("calculator methods", function() {
+    it("return income", function() {
+      expect(calculator.income).toEqual(50000);
+    });
+
+    describe("calculateTaxes", function() {
+        it("should apply a single tax bracket", function() {
+          expect(calculator.calculateTaxes(9275)).toEqual(9275 * 0.10);
+        });
+
+        it("apply multiple tax brackets", function() {
+          expect(calculator.calculateTaxes(37650)).toEqual(5183.75);
+        });
+
+        it("applying all but the last two tax brackets", function() {
+          expect(calculator.calculateTaxes(200000)).toEqual(49529.25);
+        });
+      });
+    });
+
+
 
   describe("when song has been paused", function() {
     beforeEach(function() {
