@@ -1,17 +1,11 @@
-describe("Player", function() {
-  var Calculator = require('../../src/calculator.js');
+describe("Calculator", function() {
   var calculator;
 
   beforeEach(function() {
-    calculator = new Calculator(50000);
+    calculator = new Calculator();
   });
 
-
-  fdescribe("calculator methods", function() {
-    it("return income", function() {
-      expect(calculator.income).toEqual(50000);
-    });
-
+  describe("calculator methods", function() {
     describe("calculateTaxes", function() {
         it("should apply a single tax bracket", function() {
           expect(calculator.calculateTaxes(9275)).toEqual(9275 * 0.10);
@@ -25,48 +19,23 @@ describe("Player", function() {
           expect(calculator.calculateTaxes(200000)).toEqual(49529.25);
         });
       });
+
+      describe("socialSecurityWithholding", function() {
+        it("should apply the correct rate to the gross income", function() {
+          expect(calculator.socialSecurityWithholding(100000)).toEqual(6200);
+        });
+
+        describe("with an income above the max ssn taxable level", function() {
+          it("should return the maximum withholding", function() {
+            expect(calculator.socialSecurityWithholding(150000)).toEqual(118500 * 0.062);
+          });
+        });
+      });
+
+      describe("medicateWithHolding", function() {
+        it("should calculate the correct rate", function() {
+          expect(calculator.medicareWithholding(100000)).toEqual(100000 * 0.0145);
+        });
+      });
     });
-
-
-
-  describe("when song has been paused", function() {
-    beforeEach(function() {
-      player.play(song);
-      player.pause();
-    });
-
-    it("should indicate that the song is currently paused", function() {
-      expect(player.isPlaying).toBeFalsy();
-
-      // demonstrates use of 'not' with a custom matcher
-      expect(player).not.toBePlaying(song);
-    });
-
-    it("should be possible to resume", function() {
-      player.resume();
-      expect(player.isPlaying).toBeTruthy();
-      expect(player.currentlyPlayingSong).toEqual(song);
-    });
-  });
-
-  // demonstrates use of spies to intercept and test method calls
-  it("tells the current song if the user has made it a favorite", function() {
-    spyOn(song, 'persistFavoriteStatus');
-
-    player.play(song);
-    player.makeFavorite();
-
-    expect(song.persistFavoriteStatus).toHaveBeenCalledWith(true);
-  });
-
-  //demonstrates use of expected exceptions
-  describe("#resume", function() {
-    it("should throw an exception if song is already playing", function() {
-      player.play(song);
-
-      expect(function() {
-        player.resume();
-      }).toThrowError("song is already playing");
-    });
-  });
 });

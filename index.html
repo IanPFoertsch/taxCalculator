@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>Minimal JS Front-End App Example</title>
-  <script src="src/model/Book.js"></script>
+  <!-- Bower modules-->
+  <script src="bower_components/lodash/lodash.js"></script>
+  <!-- project files -->
+  <script src="scripts/calculator/calculator.js"></script>
+  <script src="scripts/document/document-listeners.js"></script>
 </head>
 <body>
-  <h1> HELLO World</h1>
+  <input type="text" id="incomeInput"></input>
+  <button id="calculateButton">Calculate your Taxes</button>
+  <p id="federalIncomeTaxAmount"></p>
 </body>
 </html>
