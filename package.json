@@ -8,6 +8,10 @@
     "lodash": "^4.16.6"
   },
   "devDependencies": {
+    "e": "0.0.4",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-serve": "^0.1.6",
     "jasmine-core": "^2.5.2",
     "karma-bower": "^1.0.1",
     "karma-chrome-launcher": "^2.0.0",
