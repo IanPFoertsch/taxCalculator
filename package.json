@@ -9,8 +9,11 @@
   },
   "devDependencies": {
     "e": "0.0.4",
+    "grunt-contrib-connect": "^1.0.2",
     "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-livereload": "^0.1.2",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-express": "^1.4.1",
     "grunt-serve": "^0.1.6",
     "jasmine-core": "^2.5.2",
     "karma-bower": "^1.0.1",

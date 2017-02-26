@@ -1,0 +1,9 @@
+.main {
+  max-width: 500px;
+  float: right;
+}
+
+.left-bar {
+  width: 100px;
+  float: left;
+}

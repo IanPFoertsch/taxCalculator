@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
       row.insertCell(1);
     });
   }
-  populateTable(document.getElementById('tax-table'));
+  populateTable( document.getElementById('tax-table'));
 
   function clearTableValues(table) {
     _.forEach(table.rows, (function(row) {
