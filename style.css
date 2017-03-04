@@ -1,5 +1,9 @@
+* {
+  outline: 1px solid black;
+}
+
 .main {
-  max-width: 500px;
+  width: 500px;
   float: right;
 }
 
