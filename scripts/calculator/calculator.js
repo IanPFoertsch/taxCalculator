@@ -1,6 +1,7 @@
 'use-strict';
-function federalIncomeTax(incomeStr, standardDeduction) {
+function TaxCalculator() {}
 
+TaxCalculator.federalIncomeTax = function(incomeStr, standardDeduction) {
   var grossIncome = parseInt(incomeStr);
   //TODO: split this out into a loaded config file
   var brackets = {
@@ -31,26 +32,23 @@ function federalIncomeTax(incomeStr, standardDeduction) {
     return totalTax;
   }, 0);
   return totalTax;
-}
+};
 
-function socialSecurityWithholding(incomeStr) {
-  //TODO: figure out if the standard deduction applies to social
-  //security witholding
+TaxCalculator.socialSecurityWithholding = function(incomeStr) {
   var grossIncome = parseInt(incomeStr);
   var maxSSNTaxableEarnings = 118500;
   var socialSecurityWithholdingRate = 0.062;
   applicableIncome = minimum(grossIncome, maxSSNTaxableEarnings);
   return applicableIncome * socialSecurityWithholdingRate;
-}
+};
 
-function medicareWithholding(incomeStr) {
-  //TODO: figure out if the standard deduction applies to medicare
+TaxCalculator.medicareWithholding = function (incomeStr) {
   var grossIncome = parseInt(incomeStr);
   var medicareWithholdingRate = 0.0145;
   return grossIncome * medicareWithholdingRate;
-}
+};
 
-function applicableDeductions(income) {
+TaxCalculator.applicableDeductions = function (income) {
   //ideally this would accept a profile object and return the amount
   //of deductable income, but for now, just remove the standard deduction
   //and the personal exemption
@@ -66,7 +64,7 @@ function applicableDeductions(income) {
   }, 0);
 
   return income - totalDeductions;
-}
+};
 
 function minimum(first, second) {
   return Math.min.apply(Math, [first, second]);
@@ -74,4 +72,5 @@ function minimum(first, second) {
 
 function numberToCurrencyString(number) {
   currencyPrefix = '$';
+  return currencyPrefix + number.toString();
 }
