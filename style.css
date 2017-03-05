@@ -1,9 +1,17 @@
+
 .main {
-  max-width: 500px;
-  float: right;
+  outline: 1px solid black;
+  width: 500px;
+  float: center;
 }
 
 .left-bar {
+  outline: 1px solid black;
+  padding-left: 50px;
   width: 100px;
   float: left;
+}
+
+table {
+  outline: 1px solid black;
 }
