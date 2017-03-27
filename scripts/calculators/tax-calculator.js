@@ -66,6 +66,15 @@ TaxCalculator.applicableDeductions = function (income) {
   return income - totalDeductions;
 };
 
+TaxCalculator.netIncome = function(grossIncome) {
+  var medicaid = TaxCalculator.medicareWithholding(grossIncome);
+  var socialSecurity = TaxCalculator.socialSecurityWithholding(grossIncome);
+
+  var taxableIncome = TaxCalculator.applicableDeductions(grossIncome);
+  var federalIncomeTax = TaxCalculator.federalIncomeTax(grossIncome);
+  return grossIncome - (medicaid + socialSecurity + federalIncomeTax);
+};
+
 function minimum(first, second) {
   return Math.min.apply(Math, [first, second]);
 }

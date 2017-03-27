@@ -7,8 +7,9 @@
   <!-- Bower modules-->
   <script src="../bower_components/lodash/lodash.js"></script>
   <!-- project files -->
-  <script src="scripts/calculator/calculator.js"></script>
-  <script src="scripts/document-listeners/calculator-listener.js"></script>
+  <script src="scripts/calculators/tax-calculator.js"></script>
+  <script src="scripts/document-listeners/tax-calculator-listener.js"></script>
+  <script src="scripts/calculators/value-calculator.js"></script>
   <script src="scripts/document-listeners/document-prepare.js"></script>
 </head>
 <body>
@@ -17,9 +18,9 @@
     <button id="calculateButton">Calculate your Taxes</button>
   </div>
   <div class = "main">
-    <p>Tax Breakdown</p>
-    <table id="tax-table">
 
+    <table id="tax-table">
+      <th>Tax Breakdown</th>
     </table>
   </div>
 </body>
