@@ -1,3 +1,3 @@
 document.addEventListener("DOMContentLoaded", function() {
-  CalculatorListener.prepare();
+  TaxCalculatorListener.prepare();
 });
