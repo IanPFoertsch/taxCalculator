@@ -14,7 +14,7 @@ TaxCalculator.federalIncomeTax = function(incomeStr, standardDeduction) {
     '1000000000': 0.396
   };
 
-  var remainingIncome = grossIncome;
+  var remainingIncome = TaxCalculator.lessDeductions(grossIncome);
   var previousBracket = 0;
   //TODO: Refine this iterative approach to make it more maintainable
   totalTax = _.reduce(brackets, function(totalTax, rate, bracket) {
@@ -48,7 +48,7 @@ TaxCalculator.medicareWithholding = function (incomeStr) {
   return grossIncome * medicareWithholdingRate;
 };
 
-TaxCalculator.applicableDeductions = function (income) {
+TaxCalculator.lessDeductions = function (income) {
   //ideally this would accept a profile object and return the amount
   //of deductable income, but for now, just remove the standard deduction
   //and the personal exemption
@@ -70,8 +70,10 @@ TaxCalculator.netIncome = function(grossIncome) {
   var medicaid = TaxCalculator.medicareWithholding(grossIncome);
   var socialSecurity = TaxCalculator.socialSecurityWithholding(grossIncome);
 
-  var taxableIncome = TaxCalculator.applicableDeductions(grossIncome);
-  var federalIncomeTax = TaxCalculator.federalIncomeTax(grossIncome);
+  var taxableIncome = TaxCalculator.lessDeductions(grossIncome);
+  var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome);
+  console.log(grossIncome);
+  console.log(taxableIncome);
   return grossIncome - (medicaid + socialSecurity + federalIncomeTax);
 };
 
