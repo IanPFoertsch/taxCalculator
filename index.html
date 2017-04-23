@@ -8,14 +8,25 @@
   <script src="../bower_components/lodash/lodash.js"></script>
   <!-- project files -->
   <script src="scripts/calculators/tax-calculator.js"></script>
-  <script src="scripts/document-listeners/tax-calculator-listener.js"></script>
   <script src="scripts/calculators/value-calculator.js"></script>
+
+  <script src="scripts/document-listeners/tax-calculator-listener.js"></script>
   <script src="scripts/document-listeners/document-prepare.js"></script>
+
+  <script src="scripts/dom-elements/table-element.js"></script>
+  <script src="scripts/dom-elements/title-row-element.js"></script>
+  <script src="scripts/dom-elements/input-row-element.js"></script>
 </head>
 <body>
   <div class="left-bar">
-    <input type="text" id="grossIncome"></input>
+    <input type="number" id="grossIncome"></input>
     <button id="calculateButton">Calculate your Taxes</button>
+    <label for="yearlyInvestment">Yearly Investment</label>
+    <input type="number" id="yearlyInvestment" ></input>
+    <label for="yearsToRetirement">Years To Retirment</label>
+    <input type="number" id="yearsToRetirement"></input>
+    <label for="deductableContributions">Deductable Contributions</label>
+    <input type="number" id="defuctableContributions"></input>
   </div>
   <div class = "main">
 
