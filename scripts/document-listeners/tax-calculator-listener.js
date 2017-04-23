@@ -13,7 +13,6 @@ TaxCalculatorListener.prepare = function() {
     //TODO: This is a bad way to create a table, with a great deal
     // of custom logic. Consolidate this to a re-useable shared class
     _.forEach(taxes, function(func, name) {
-      console.log("why anm I running?");
       row = table.insertRow();
       nameCell = row.insertCell(0);
 
@@ -23,7 +22,7 @@ TaxCalculatorListener.prepare = function() {
       valueCell.innerHTML = defaultValue;
     });
   };
-  
+
   populateTable(document.getElementById('tax-table'), "$0.0");
 
   var clearTableValues = function (table) {

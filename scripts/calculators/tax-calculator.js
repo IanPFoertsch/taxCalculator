@@ -72,8 +72,7 @@ TaxCalculator.netIncome = function(grossIncome) {
 
   var taxableIncome = TaxCalculator.lessDeductions(grossIncome);
   var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome);
-  console.log(grossIncome);
-  console.log(taxableIncome);
+
   return grossIncome - (medicaid + socialSecurity + federalIncomeTax);
 };
 
