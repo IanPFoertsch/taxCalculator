@@ -1,27 +1,42 @@
-function InputRowElement(config, parentIdentifier) {
+function Row(config, parentIdentifier) {
   this.config = config;
   this.parentIdentifier = parentIdentifier;
-
-  this.prepare = function() {
-    //TODO: this is also very similar logic between classes. figure out
-    //how inheritance works in javascript and use that
-    var parent = document.querySelector(this.parentIdentifier);
-    var div = document.createElement('Div');
-
-    div.className += "input-row";
-
-    var input = document.createElement('Input');
-
-    input.type = config.type;
-    input.name = config.label;
-
-    var label = document.createElement('Label');
-
-    label.innerText = config.label;
-
-    div.appendChild(label);
-    div.appendChild(input);
-
-    parent.appendChild(div, parent);
-  };
 }
+
+Row.prototype.prepare = function() {
+  this.parent = document.querySelector(this.parentIdentifier);
+
+  this.div = document.createElement('Div');
+  this.div.className += "table-row";
+
+  this.label = document.createElement('Label');
+  this.label.innerText = this.config.label;
+
+  this.div.appendChild(this.label);
+  this.parent.appendChild(this.div, this.parent);
+};
+
+
+function InputRowElement(config, parentIdentifier) {
+  Row.call(this, config, parentIdentifier);
+}
+
+InputRowElement.protoype = Object.create(Row.prototype);
+
+InputRowElement.prototype.prepare = function() {
+  Row.prototype.prepare.call(this);
+
+  this.input = document.createElement('Input');
+
+  this.input.type = this.config.type;
+  this.input.name = this.config.label;
+
+  this.div.appendChild(this.input);
+};
+
+
+function OutputRow(config, parentIdentifier) {
+  
+}
+
+OutputRow.protoype = Object.create(Row.prototype);
