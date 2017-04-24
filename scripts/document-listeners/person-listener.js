@@ -10,8 +10,6 @@ PersonListener.prepare = function(tableElement) {
     _.forEach(inputs, function(input) {
       person[input.name] = input.value;
     });
-
-    console.log(person);
   };
 
   document.getElementById("calculateButton").addEventListener("click", function(){
