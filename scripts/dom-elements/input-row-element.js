@@ -36,7 +36,18 @@ InputRowElement.prototype.prepare = function() {
 
 
 function OutputRow(config, parentIdentifier) {
-  
+  Row.call(this, config, parentIdentifier);
 }
+
+OutputRow.prototype.prepare = function() {
+  Row.prototype.prepare.call(this);
+  
+  this.output = document.createElement('div');
+
+  this.output.name = this.config.label;
+  this.output.innerHTML = this.config.value;
+
+  this.div.appendChild(this.output);
+};
 
 OutputRow.protoype = Object.create(Row.prototype);

@@ -13,6 +13,16 @@ document.addEventListener("DOMContentLoaded", function() {
   }, '.left-bar');
 
 
+  var outTable = new OutputTableElement({
+    cssClasses: 'output-table',
+    titleRow: { title: 'Tax Breakdown' },
+    rows: [
+      { label: 'Federal Income Tax', value: '$1000'}
+    ]
+  }, '.main');
+
+
   newTable.prepare();
+  outTable.prepare();
   PersonListener.prepare();
 });
