@@ -6,9 +6,6 @@ function TableElement(config, parentIdentifier) {
   this.titleRow = new TitleRowElement(config.titleRow, this.identifier);
 }
 
-console.log("look here");
-console.log(TableElement.prototype);
-
 TableElement.prototype.prepare = function() {
   var parent = document.querySelector(this.parentIdentifier);
   var child = document.createElement("Table");
@@ -21,8 +18,11 @@ TableElement.prototype.prepare = function() {
 
 
 TableElement.prototype.prepareChildren = function() {
-  console.log("this was called");
   this.titleRow.prepare();
+
+  _.each(this.rows, function(row) {
+    row.prepare();
+  });
 };
 
 function InputTableElement(config, parentIdentifier) {
@@ -36,15 +36,15 @@ function InputTableElement(config, parentIdentifier) {
 
 InputTableElement.prototype = Object.create(TableElement.prototype);
 
-InputTableElement.prototype.prepareChildren = function() {
-  TableElement.prototype.prepareChildren.call(this);
-  _.each(this.rows, function(row) {
-    console.log(row);
-    row.prepare();
-  });
-};
-
 
 function OutputTableElement(config, parentIdentifier) {
   TableElement.call(this, config, parentIdentifier);
+
+  var self = this;
+
+  this.rows = _.map(config.rows, function(row) {
+    return new OutputRow(row, self.identifier);
+  });
 }
+
+OutputTableElement.prototype = Object.create(TableElement.prototype);
