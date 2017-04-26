@@ -41,7 +41,7 @@ function OutputRow(config, parentIdentifier) {
 
 OutputRow.prototype.prepare = function() {
   Row.prototype.prepare.call(this);
-  
+
   this.output = document.createElement('div');
 
   this.output.name = this.config.label;

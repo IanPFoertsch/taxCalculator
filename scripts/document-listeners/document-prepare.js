@@ -17,11 +17,19 @@ document.addEventListener("DOMContentLoaded", function() {
     cssClasses: 'output-table',
     titleRow: { title: 'Tax Breakdown' },
     rows: [
-      { label: 'Federal Income Tax', value: '$1000'}
+      { label: 'Federal Income Tax', value: '$0.0'}
     ]
   }, '.main');
 
+  var button = new Button({
+    text: 'Calculate Your Taxes',
+    onClick: function() {
+      console.log('was clicked!');
+    }
 
+  }, '.main');
+
+  button.prepare();
   newTable.prepare();
   outTable.prepare();
   PersonListener.prepare();
