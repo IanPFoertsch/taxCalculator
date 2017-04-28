@@ -2,7 +2,7 @@ function Button(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
 }
 
-InputRowElement.protoype = Object.create(DOMElement.prototype);
+Button.protoype = Object.create(DOMElement.prototype);
 
 Button.prototype.prepare = function() {
   var parent = document.querySelector(this.parentIdentifier);

@@ -48,3 +48,9 @@ function OutputTableElement(config, parentIdentifier) {
 }
 
 OutputTableElement.prototype = Object.create(TableElement.prototype);
+
+OutputTableElement.prototype.update = function(output) {
+  _.each(this.rows, function(row) {
+    row.update(output);
+  });
+};

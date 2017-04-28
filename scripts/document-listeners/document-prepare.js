@@ -17,14 +17,17 @@ document.addEventListener("DOMContentLoaded", function() {
     cssClasses: 'output-table',
     titleRow: { title: 'Tax Breakdown' },
     rows: [
-      { label: 'Federal Income Tax', value: '$0.0'}
+      { label: 'Federal Income Tax', value: '$0.0'},
+      { label: 'Social Security Withholding', value: '$0.0'},
+      { label: 'Medicare Withholding', value: '$0.0'},
+      { label: 'Net Income', value: '$0.0'}
     ]
   }, '.main');
 
   var button = new Button({
     text: 'Calculate Your Taxes',
     onClick: function() {
-      console.log('was clicked!');
+      outTable.update('hello');
     }
 
   }, '.main');
