@@ -45,9 +45,14 @@ OutputRow.prototype.prepare = function() {
   this.output = document.createElement('div');
 
   this.output.name = this.config.label;
+  console.log(this.output.name);
   this.output.innerHTML = this.config.value;
 
   this.div.appendChild(this.output);
 };
+
+OutputRow.prototype.update = function(newOutput) {
+  this.output.innerHTML = newOutput;
+}
 
 OutputRow.protoype = Object.create(Row.prototype);
