@@ -1,18 +1,13 @@
-function PersonListener() {}
+function PersonListener(rows) {
+  this.listeners = _.reduce(rows, function(memo, config) {
+    memo[config.label] = new InputListener(config);
+    return memo;
+  }, {});
+}
 
-PersonListener.prepare = function(tableElement) {
-
-
-  parsePersonInformation = function() {
-    var person = {};
-    var inputs = document.querySelectorAll('.person-table input');
-
-    _.forEach(inputs, function(input) {
-      person[input.name] = input.value;
-    });
-  };
-
-  document.getElementById("calculateButton").addEventListener("click", function(){
-    parsePersonInformation();
-  });
+PersonListener.prototype.getInput = function() {
+  return _.reduce(this.listeners, function(person, listener, name) {
+    person[name] = listener.getInput();
+    return person;
+  }, {});
 };

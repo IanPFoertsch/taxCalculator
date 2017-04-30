@@ -1,17 +1,20 @@
 document.addEventListener("DOMContentLoaded", function() {
-  TaxCalculatorListener.prepare();
+
+  var inputRows = [
+    { label: 'Gross Income', type: 'number' },
+    { label: 'Pre-Tax Contributions', type: 'number' },
+    { label: 'Roth Contributions', type: 'number' },
+    { label: 'Brokerage Invesments', type: 'number' },
+    { label: 'Years to Retirement', type: 'number' },
+  ];
+
   var newTable =  new InputTableElement({
     cssClasses: 'person-table',
     titleRow: { title: 'Enter Your Financial Information' },
-    rows: [
-      { label: 'Gross Income', type: 'number' },
-      { label: 'Pre-Tax Contributions', type: 'number' },
-      { label: 'Roth Contributions', type: 'number' },
-      { label: 'Brokerage Invesments', type: 'number' },
-      { label: 'Years to Retirement', type: 'number' },
-    ]
+    rows: inputRows
   }, '.left-bar');
 
+  var personListener = new PersonListener(inputRows);
 
   var outTable = new OutputTableElement({
     cssClasses: 'output-table',
@@ -27,13 +30,13 @@ document.addEventListener("DOMContentLoaded", function() {
   var button = new Button({
     text: 'Calculate Your Taxes',
     onClick: function() {
-      outTable.update('hello');
+      var person = personListener.getInput();
+      //have to perform the tax calculations here, then feed the
+      //correctly labelled values to the output table
     }
-
   }, '.main');
 
   button.prepare();
   newTable.prepare();
   outTable.prepare();
-  PersonListener.prepare();
 });
