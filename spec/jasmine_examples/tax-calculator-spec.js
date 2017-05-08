@@ -1,15 +1,18 @@
+var TaxCalculator = Calculator.TaxCalculator;
+
 describe('TaxCalculator', function() {
   describe('calculateTaxes', function() {
+    var deductions = 10400;
     it('should apply a single tax bracket', function() {
-      expect(TaxCalculator.federalIncomeTax(9275)).toEqual(9275 * 0.10);
+      expect(TaxCalculator.federalIncomeTax(9275 + deductions)).toEqual(9275 * 0.10);
     });
 
     it('apply multiple tax brackets', function() {
-      expect(TaxCalculator.federalIncomeTax(37650)).toEqual(5183.75);
+      expect(TaxCalculator.federalIncomeTax(37650 + deductions)).toEqual(5183.75);
     });
 
     it('applying all but the last two tax brackets', function() {
-      expect(TaxCalculator.federalIncomeTax(200000)).toEqual(49529.25);
+      expect(TaxCalculator.federalIncomeTax(200000 + deductions)).toEqual(49529.25);
     });
   });
 
@@ -35,7 +38,7 @@ describe('TaxCalculator', function() {
     var grossIncome = 50000;
     it('should subtract the applicable deductions for a single person', function() {
       //TODO: this is dumb. create more meaningful unit tests.
-      expect(TaxCalculator.applicableDeductions(grossIncome)).toEqual(50000 - 10400);
+      expect(TaxCalculator.lessDeductions(grossIncome)).toEqual(50000 - 10400);
     });
   });
 
