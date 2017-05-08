@@ -1,7 +1,20 @@
 'use-strict';
 function TaxCalculator() {}
 
-TaxCalculator.federalIncomeTax = function(incomeStr, standardDeduction) {
+TaxCalculator.calculateTaxes = function(personObject) {
+  let grossIncome = 0;
+
+  var taxes = {
+    'Federal Income Tax': this.federalIncomeTax(),
+    'Social Security Withholding': this.socialSecurityWithholding(),
+    'Medicare Withholding': this.medicareWithholding(),
+    'Net Income': this.netIncome()
+  };
+
+  return taxes;
+};
+
+TaxCalculator.federalIncomeTax = function(incomeStr) {
   var grossIncome = parseInt(incomeStr);
   //TODO: split this out into a loaded config file
   var brackets = {
@@ -17,7 +30,7 @@ TaxCalculator.federalIncomeTax = function(incomeStr, standardDeduction) {
   var remainingIncome = TaxCalculator.lessDeductions(grossIncome);
   var previousBracket = 0;
   //TODO: Refine this iterative approach to make it more maintainable
-  totalTax = _.reduce(brackets, function(totalTax, rate, bracket) {
+  var totalTax = _.reduce(brackets, function(totalTax, rate, bracket) {
     var currentBracket = parseInt(bracket);
     var bracketMagnitude = currentBracket - previousBracket;
 
@@ -38,7 +51,7 @@ TaxCalculator.socialSecurityWithholding = function(incomeStr) {
   var grossIncome = parseInt(incomeStr);
   var maxSSNTaxableEarnings = 118500;
   var socialSecurityWithholdingRate = 0.062;
-  applicableIncome = minimum(grossIncome, maxSSNTaxableEarnings);
+  var applicableIncome = minimum(grossIncome, maxSSNTaxableEarnings);
   return applicableIncome * socialSecurityWithholdingRate;
 };
 
@@ -59,7 +72,7 @@ TaxCalculator.lessDeductions = function (income) {
     'personalExemption': 4050 //assumption is that this is for a single person
   };
 
-  totalDeductions = _.reduce(deductionsAndExemptions, function(total, value, key) {
+  var totalDeductions = _.reduce(deductionsAndExemptions, function(total, value) {
     return (total + value);
   }, 0);
 
@@ -81,6 +94,8 @@ function minimum(first, second) {
 }
 
 function numberToCurrencyString(number) {
-  currencyPrefix = '$';
+  var currencyPrefix = '$';
   return currencyPrefix + number.toString();
 }
+
+Calculator.TaxCalculator = TaxCalculator;
