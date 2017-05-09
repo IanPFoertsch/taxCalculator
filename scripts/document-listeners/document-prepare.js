@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
     text: 'Calculate Your Taxes',
     onClick: function() {
       var person = personListener.getInput();
+      TaxCalculator.calculateTaxes(person);
       //have to perform the tax calculations here, then feed the
       //correctly labelled values to the output table
     }

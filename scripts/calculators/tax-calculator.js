@@ -1,21 +1,25 @@
 'use-strict';
+'use-strict';
+function Calculator() {}
+
 function TaxCalculator() {}
 
 TaxCalculator.calculateTaxes = function(personObject) {
-  let grossIncome = 0;
+  let grossIncome = personObject['Gross Income'] || 0;
+  let preTaxContributions = personObject['Pre-Tax Contributions'] || 0;
 
+  let incomeLessDeductions = this.lessDeductions(grossIncome, preTaxContributions);
   var taxes = {
-    'Federal Income Tax': this.federalIncomeTax(),
-    'Social Security Withholding': this.socialSecurityWithholding(),
-    'Medicare Withholding': this.medicareWithholding(),
-    'Net Income': this.netIncome()
+    'Federal Income Tax': this.federalIncomeTax(incomeLessDeductions),
+    'Social Security Withholding': this.socialSecurityWithholding(grossIncome),
+    'Medicare Withholding': this.medicareWithholding(grossIncome),
+    // 'Net Income': this.netIncome()
   };
-
+  console.log(taxes);
   return taxes;
 };
 
-TaxCalculator.federalIncomeTax = function(incomeStr) {
-  var grossIncome = parseInt(incomeStr);
+TaxCalculator.federalIncomeTax = function(taxableIncome) {
   //TODO: split this out into a loaded config file
   var brackets = {
     '9275': 0.10,
@@ -27,7 +31,8 @@ TaxCalculator.federalIncomeTax = function(incomeStr) {
     '1000000000': 0.396
   };
 
-  var remainingIncome = TaxCalculator.lessDeductions(grossIncome);
+
+  var remainingIncome = taxableIncome;
   var previousBracket = 0;
   //TODO: Refine this iterative approach to make it more maintainable
   var totalTax = _.reduce(brackets, function(totalTax, rate, bracket) {
@@ -44,6 +49,7 @@ TaxCalculator.federalIncomeTax = function(incomeStr) {
 
     return totalTax;
   }, 0);
+  console.log(totalTax);
   return totalTax;
 };
 
@@ -61,15 +67,13 @@ TaxCalculator.medicareWithholding = function (incomeStr) {
   return grossIncome * medicareWithholdingRate;
 };
 
-TaxCalculator.lessDeductions = function (income) {
-  //ideally this would accept a profile object and return the amount
-  //of deductable income, but for now, just remove the standard deduction
-  //and the personal exemption
+TaxCalculator.lessDeductions = function (income, deductableContributions) {
 
   //TODO: extract these to a JSON config
   var deductionsAndExemptions = {
     'standardDeduction': 6350,
-    'personalExemption': 4050 //assumption is that this is for a single person
+    'personalExemption': 4050, //assumption is that this is for a single person
+    'deductableContributions': deductableContributions
   };
 
   var totalDeductions = _.reduce(deductionsAndExemptions, function(total, value) {

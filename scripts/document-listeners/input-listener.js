@@ -3,6 +3,17 @@ function InputListener(config) {
 }
 
 InputListener.prototype.getInput = function() {
-  element = document.getElementsByName(this.config.label)[0];  
+  var element = document.getElementsByName(this.config.label)[0];
   return element.value;
+};
+
+function NumericInputListener(config) {
+  InputListener.call(this, config);
+}
+
+NumericInputListener.prototype = Object.create(InputListener.prototype);
+
+NumericInputListener.prototype.getInput = function() {
+  var value = InputListener.prototype.getInput.call(this);
+  return parseInt(value);
 };
