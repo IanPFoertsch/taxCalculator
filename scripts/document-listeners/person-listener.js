@@ -1,6 +1,10 @@
 function PersonListener(rows) {
   this.listeners = _.reduce(rows, function(memo, config) {
-    memo[config.label] = new InputListener(config);
+    if (config.type === 'number') {
+      memo[config.label] = new NumericInputListener(config);
+    } else {
+      memo[config.label] = new InputListener(config);
+    }
     return memo;
   }, {});
 }
