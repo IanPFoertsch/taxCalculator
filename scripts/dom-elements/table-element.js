@@ -51,6 +51,7 @@ OutputTableElement.prototype = Object.create(TableElement.prototype);
 
 OutputTableElement.prototype.update = function(output) {
   _.each(this.rows, function(row) {
-    row.update(output);
+    var updatedInfo = output[row.label.innerText];
+    row.update(updatedInfo);
   });
 };

@@ -13,9 +13,9 @@ TaxCalculator.calculateTaxes = function(personObject) {
     'Federal Income Tax': this.federalIncomeTax(incomeLessDeductions),
     'Social Security Withholding': this.socialSecurityWithholding(grossIncome),
     'Medicare Withholding': this.medicareWithholding(grossIncome),
-    // 'Net Income': this.netIncome()
+    'Net Income': this.netIncome(grossIncome, preTaxContributions)
   };
-  console.log(taxes);
+
   return taxes;
 };
 
@@ -49,22 +49,20 @@ TaxCalculator.federalIncomeTax = function(taxableIncome) {
 
     return totalTax;
   }, 0);
-  console.log(totalTax);
+
   return totalTax;
 };
 
-TaxCalculator.socialSecurityWithholding = function(incomeStr) {
-  var grossIncome = parseInt(incomeStr);
+TaxCalculator.socialSecurityWithholding = function(income) {
   var maxSSNTaxableEarnings = 118500;
   var socialSecurityWithholdingRate = 0.062;
-  var applicableIncome = minimum(grossIncome, maxSSNTaxableEarnings);
+  var applicableIncome = minimum(income, maxSSNTaxableEarnings);
   return applicableIncome * socialSecurityWithholdingRate;
 };
 
-TaxCalculator.medicareWithholding = function (incomeStr) {
-  var grossIncome = parseInt(incomeStr);
+TaxCalculator.medicareWithholding = function (income) {
   var medicareWithholdingRate = 0.0145;
-  return grossIncome * medicareWithholdingRate;
+  return income * medicareWithholdingRate;
 };
 
 TaxCalculator.lessDeductions = function (income, deductableContributions) {
@@ -83,14 +81,14 @@ TaxCalculator.lessDeductions = function (income, deductableContributions) {
   return income - totalDeductions;
 };
 
-TaxCalculator.netIncome = function(grossIncome) {
+TaxCalculator.netIncome = function(grossIncome, deductableContributions) {
   var medicaid = TaxCalculator.medicareWithholding(grossIncome);
   var socialSecurity = TaxCalculator.socialSecurityWithholding(grossIncome);
 
-  var taxableIncome = TaxCalculator.lessDeductions(grossIncome);
+  var taxableIncome = TaxCalculator.lessDeductions(grossIncome, deductableContributions);
   var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome);
 
-  return grossIncome - (medicaid + socialSecurity + federalIncomeTax);
+  return grossIncome - (medicaid + socialSecurity + federalIncomeTax + deductableContributions) ;
 };
 
 function minimum(first, second) {
