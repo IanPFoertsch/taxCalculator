@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
   ];
 
   var newTable =  new InputTableElement({
-    cssClasses: 'person-table',
+    cssClasses: ['person-table'],
     titleRow: { title: 'Enter Your Financial Information' },
     rows: inputRows
   }, '.left-bar');
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var personListener = new PersonListener(inputRows);
 
   var outTable = new OutputTableElement({
-    cssClasses: 'output-table',
+    cssClasses: ['output-table'],
     titleRow: { title: 'Tax Breakdown' },
     rows: [
       { label: 'Federal Income Tax', value: '$0.0'},

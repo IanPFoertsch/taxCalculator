@@ -3,6 +3,7 @@
   outline: 1px solid black;
   width: 500px;
   float: center;
+  height: 100%;
 }
 
 .left-bar {
@@ -10,6 +11,7 @@
   padding-left: 50px;
   width: 300px;
   float: left;
+  height: 100%;
 }
 
 table {

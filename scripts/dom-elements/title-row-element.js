@@ -1,16 +1,19 @@
 function TitleRowElement(config, parentIdentifier) {
+  DOMElement.call(this, config, parentIdentifier);
   this.title = config.title;
-  this.parentIdentifier = parentIdentifier;
-
-  this.prepare = function() {
-    //TODO: this is also very similar logic between classes. figure out
-    //how inheritance works in javascript and use that
-    var parent = document.querySelector(this.parentIdentifier);
-
-    var div = document.createElement('Div');
-    div.className += "title-row";
-    div.innerText = this.title;
-
-    parent.appendChild(div);
-  };
+  this.type = 'Div';
 }
+
+TitleRowElement.prototype = Object.create(DOMElement.prototype);
+
+TitleRowElement.prototype.prepare = function() {
+  console.log('title row stuff');
+  DOMElement.prototype.prepare.call(this);
+
+  this.element.innerText = this.title;
+
+  // div.className += "title-row";
+  // div.innerText = this.title;
+
+  // this.parent.appendChild(div);
+};
