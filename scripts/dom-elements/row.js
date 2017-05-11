@@ -3,6 +3,8 @@ function Row(config, parentIdentifier) {
   this.parentIdentifier = parentIdentifier;
 }
 
+Row.prototype = Object.create(DOMElement.prototype);
+
 Row.prototype.prepare = function() {
   this.parent = document.querySelector(this.parentIdentifier);
 

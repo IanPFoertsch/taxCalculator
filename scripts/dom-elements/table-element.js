@@ -1,23 +1,23 @@
-function TableElement(config, parentIdentifier) {
-  this.config = config;
-  this.parentIdentifier = parentIdentifier;
-  this.identifier = '.' + config.cssClasses;
+const INPUT_TABLE_CLASS = 'input-table';
+const OUTPUT_TABLE_CLASS = 'output-table';
+const TABLE_TYPE = 'Table';
 
+function TableElement(config, parentIdentifier) {
+  DOMElement.call(this, config, parentIdentifier);
+
+  this.type = TABLE_TYPE;
   this.titleRow = new TitleRowElement(config.titleRow, this.identifier);
 }
 
+TableElement.prototype = Object.create(DOMElement.prototype);
+
 TableElement.prototype.prepare = function() {
-  var parent = document.querySelector(this.parentIdentifier);
-  var child = document.createElement("Table");
-
-  child.className += this.config.cssClasses;
-  parent.appendChild(child);
-
-  this.prepareChildren();
+  DOMElement.prototype.prepare.call(this);
 };
 
 
 TableElement.prototype.prepareChildren = function() {
+  console.log('preparing the title row');
   this.titleRow.prepare();
 
   _.each(this.rows, function(row) {
