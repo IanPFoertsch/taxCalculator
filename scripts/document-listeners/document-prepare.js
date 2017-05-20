@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-
   var inputRows = [
     { label: 'Gross Income', type: 'number' },
     { label: 'Pre-Tax Contributions', type: 'number' },

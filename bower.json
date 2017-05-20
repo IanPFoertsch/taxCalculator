@@ -19,5 +19,6 @@
     "lodash": "^4.16.6"
   },
   "devDependencies": {
+    "chart.js": "^2.5.0"
   }
 }

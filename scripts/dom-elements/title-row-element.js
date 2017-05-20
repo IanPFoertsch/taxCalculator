@@ -1,4 +1,4 @@
-function TitleRowElement(config, parentIdentifier) {
+ function TitleRowElement(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.title = config.title;
   this.type = 'Div';
@@ -7,7 +7,6 @@ function TitleRowElement(config, parentIdentifier) {
 TitleRowElement.prototype = Object.create(DOMElement.prototype);
 
 TitleRowElement.prototype.prepare = function() {
-  console.log('title row stuff');
   DOMElement.prototype.prepare.call(this);
 
   this.element.innerText = this.title;
