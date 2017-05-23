@@ -5,7 +5,8 @@ module.exports = function(grunt) {
       options: {
         globals: {
           jQuery: true
-        }
+        },
+        'esversion': 6
       }
     },
     watch: {

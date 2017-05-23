@@ -17,7 +17,6 @@ TableElement.prototype.prepare = function() {
 
 
 TableElement.prototype.prepareChildren = function() {
-  console.log('preparing the title row');
   this.titleRow.prepare();
 
   _.each(this.rows, function(row) {

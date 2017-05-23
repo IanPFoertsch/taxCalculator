@@ -13,7 +13,8 @@ DOMElement.prototype.prepare = function() {
     this.element.classList.add(cssClass);
   });
 
-  console.log(parent);
+  //This should possibly be called manually later in order to preserve
+  //ordering
   parent.appendChild(this.element);
   if (typeof this.prepareChildren === "function") {
     this.prepareChildren();
