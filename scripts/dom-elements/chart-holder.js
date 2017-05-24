@@ -1,6 +1,7 @@
 function ChartHolder(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.type = 'Div';
+
 }
 
 ChartHolder.protoype = Object.create(DOMElement.prototype);
@@ -8,17 +9,23 @@ ChartHolder.protoype = Object.create(DOMElement.prototype);
 ChartHolder.prototype.prepare = function() {
   DOMElement.prototype.prepare.call(this);
 
-  //TODO: extract this out to the CanvasHandler
-  this.canvas = document.createElement('Canvas');
-  this.canvas.width = this.config.width;
-  this.canvas.height = this.config.height;
-
-  this.element.className += this.config.cssClasses;
-  this.element.appendChild(this.canvas);
-  this.drawChart(this.canvas);
+  this.canvasHandler.prepare();
 };
 
-ChartHolder.prototype.drawChart = (canvas) => {
+function CanvasHandler(config, parentIdentifier) {
+  DOMElement.call(this, config, parentIdentifier);
+  this.type = 'Canvas';
+}
+
+CanvasHandler.protoype = Object.create(DOMElement.prototype);
+
+CanvasHandler.prototype.prepare = function() {
+  DOMElement.prototype.prepare.call(this);
+
+  this.drawChart(this.element);
+};
+
+CanvasHandler.prototype.drawChart = (canvas) => {
   this.chart =  new Chart(canvas, {
     type: 'line',
     data: {
@@ -26,13 +33,13 @@ ChartHolder.prototype.drawChart = (canvas) => {
         label: 'Scatter Dataset',
         data: [{
           x: 0,
-          y: 1
+          y: 60000
         }, {
           x: 3,
-          y: 2
+          y: 65000
         }, {
           x: 10,
-          y: 6
+          y: 70000
         }],
         fill: false
       }]

@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
+
   var inputRows = [
     { label: 'Gross Income', type: 'number' },
     { label: 'Pre-Tax Contributions', type: 'number' },
     { label: 'Roth Contributions', type: 'number' },
     { label: 'Brokerage Invesments', type: 'number' },
     { label: 'Years to Retirement', type: 'number' },
-    { label: 'Yearly Spending', type: 'number' }
   ];
 
   var newTable =  new InputTableElement({
@@ -27,11 +27,12 @@ document.addEventListener("DOMContentLoaded", function() {
     ]
   }, '.main');
 
-
   var chart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    height: 200,
-    width: 200
+    canvas: {
+      height: 200,
+      width: 200
+    }
   }, '.main');
 
   var button = new Button({
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function() {
       var person = personListener.getInput();
       var taxes = TaxCalculator.calculateTaxes(person);
       outTable.update(taxes);
-
       //have to perform the tax calculations here, then feed the
       //correctly labelled values to the output table
     }
@@ -49,5 +49,4 @@ document.addEventListener("DOMContentLoaded", function() {
   button.prepare();
   newTable.prepare();
   outTable.prepare();
-  chart.prepare();
 });
