@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
     { label: 'Gross Income', type: 'number' },
     { label: 'Pre-Tax Contributions', type: 'number' },
     { label: 'Roth Contributions', type: 'number' },
-    { label: 'Brokerage Invesments', type: 'number' },
+    { label: 'Brokerage Investments', type: 'number' },
     { label: 'Years to Retirement', type: 'number' },
   ];
 
@@ -30,8 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
   var chart = new ChartHolder({
     cssClasses: ['chart-holder'],
     canvas: {
-      height: 200,
-      width: 200
     }
   }, '.main');
 
@@ -41,12 +39,13 @@ document.addEventListener("DOMContentLoaded", function() {
       var person = personListener.getInput();
       var taxes = TaxCalculator.calculateTaxes(person);
       outTable.update(taxes);
-      //have to perform the tax calculations here, then feed the
-      //correctly labelled values to the output table
+      var projection = FutureCalculator.projectFuture(person);
+      chart.update(projection);
     }
   }, '.main');
 
   button.prepare();
   newTable.prepare();
   outTable.prepare();
+  chart.prepare();
 });

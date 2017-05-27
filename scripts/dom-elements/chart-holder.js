@@ -2,6 +2,7 @@ function ChartHolder(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.type = 'Div';
 
+  this.canvasHandler = new CanvasHandler(config.canvas, this.identifier);
 }
 
 ChartHolder.protoype = Object.create(DOMElement.prototype);
@@ -11,6 +12,10 @@ ChartHolder.prototype.prepare = function() {
 
   this.canvasHandler.prepare();
 };
+
+ChartHolder.prototype.update = function(dataSeries) {
+  this.canvasHandler.update(dataSeries);
+}
 
 function CanvasHandler(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
@@ -25,12 +30,18 @@ CanvasHandler.prototype.prepare = function() {
   this.drawChart(this.element);
 };
 
-CanvasHandler.prototype.drawChart = (canvas) => {
+CanvasHandler.prototype.update = function(dataSeries) {
+  this.chart.data.datasets[0].data = dataSeries;
+  this.chart.update();
+};
+
+CanvasHandler.prototype.drawChart = function(canvas)  {
   this.chart =  new Chart(canvas, {
     type: 'line',
     data: {
       datasets: [{
-        label: 'Scatter Dataset',
+        label: 'defaults',
+        fill: true,
         data: [{
           x: 0,
           y: 60000
@@ -41,7 +52,6 @@ CanvasHandler.prototype.drawChart = (canvas) => {
           x: 10,
           y: 70000
         }],
-        fill: false
       }]
     },
     options: {

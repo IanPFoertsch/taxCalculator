@@ -1,6 +1,4 @@
- 'use-strict';
-function Calculator() {}
-
+'use-strict';
 function TaxCalculator() {}
 
 TaxCalculator.calculateTaxes = function(personObject) {
