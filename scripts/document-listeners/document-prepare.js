@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
 
   var inputRows = [
-    { label: 'Gross Income', type: 'number' },
-    { label: 'Pre-Tax Contributions', type: 'number' },
-    { label: 'Roth Contributions', type: 'number' },
-    { label: 'Brokerage Invesments', type: 'number' },
-    { label: 'Years to Retirement', type: 'number' },
+    { label: 'Gross Income', type: 'number', default: 50000 },
+    { label: 'Pre-Tax Contributions', type: 'number', default: 5000 },
+    { label: 'Roth Contributions', type: 'number', default: 2000 },
+    { label: 'Brokerage Investments', type: 'number', default: 1000 },
+    { label: 'Years to Retirement', type: 'number', default: 20 },
   ];
 
   var newTable =  new InputTableElement({
@@ -30,8 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
   var chart = new ChartHolder({
     cssClasses: ['chart-holder'],
     canvas: {
-      height: 200,
-      width: 200
     }
   }, '.main');
 
@@ -41,12 +39,13 @@ document.addEventListener("DOMContentLoaded", function() {
       var person = personListener.getInput();
       var taxes = TaxCalculator.calculateTaxes(person);
       outTable.update(taxes);
-      //have to perform the tax calculations here, then feed the
-      //correctly labelled values to the output table
+      var projection = FutureCalculator.projectFuture(person);
+      chart.update(projection);
     }
   }, '.main');
 
   button.prepare();
   newTable.prepare();
   outTable.prepare();
+  chart.prepare();
 });

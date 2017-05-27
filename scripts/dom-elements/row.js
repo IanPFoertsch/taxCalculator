@@ -32,6 +32,7 @@ InputRowElement.prototype.prepare = function() {
 
   this.input.type = this.config.type;
   this.input.name = this.config.label;
+  this.input.value = this.config.default;
 
   this.div.appendChild(this.input);
 };

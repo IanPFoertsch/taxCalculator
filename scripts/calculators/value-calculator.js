@@ -14,13 +14,17 @@ ValueCalculator.projectInvestmentGrowth = function(
 ) {
   //assumes contributions and interest accrue at end of period
   let runningBalance = startingBalance;
-  let mapping = [{ 0: startingBalance }];
+  let mapping = [{ x: 0, y: startingBalance }];
 
   _.each(_.range(1, lengthOfTime + 1), (timeIndex) => {
-    var growthFromInterest = startingBalance * interestRate;
+    //x = time period
+    //y = value
+    var growthFromInterest = runningBalance * interestRate;
     runningBalance = runningBalance + growthFromInterest + contributionPerPeriod;
-    mapping.push({[timeIndex]: runningBalance});
+    mapping.push({ x: timeIndex, y: runningBalance});
   });
 
   return mapping;
 };
+
+Calculator.ValueCalculator = ValueCalculator;
