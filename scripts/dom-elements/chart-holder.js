@@ -31,7 +31,27 @@ CanvasHandler.prototype.prepare = function() {
 };
 
 CanvasHandler.prototype.update = function(dataSeries) {
-  this.chart.data.datasets[0].data = dataSeries;
+  var currentLabels = _.map(this.chart.data.datasets, (set) => {
+    return set.label;
+  });
+
+  var labels = Object.keys(dataSeries);
+
+  _.each(labels, (label) => {
+    if (currentLabels.includes(label)) {
+      var series = _.find(this.chart.data.datesets, (set) => {
+        return set.label === label;
+      });
+      series.data = dataSeries[label];
+    } else {
+      var newData = {
+        label: label,
+        data: dataSeries[label],
+        fill: true
+      };
+      this.chart.data.datasets.push(newData);
+    }
+  });
   this.chart.update();
 };
 
@@ -39,20 +59,7 @@ CanvasHandler.prototype.drawChart = function(canvas)  {
   this.chart =  new Chart(canvas, {
     type: 'line',
     data: {
-      datasets: [{
-        label: 'defaults',
-        fill: true,
-        data: [{
-          x: 0,
-          y: 60000
-        }, {
-          x: 3,
-          y: 65000
-        }, {
-          x: 10,
-          y: 70000
-        }],
-      }]
+      datasets: [{}]
     },
     options: {
       scales: {
