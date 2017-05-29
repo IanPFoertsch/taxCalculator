@@ -48,4 +48,11 @@ document.addEventListener("DOMContentLoaded", function() {
   newTable.prepare();
   outTable.prepare();
   chart.prepare();
+  //TODO: extract this out to a shared new "listener class"
+  var person = personListener.getInput();
+  var taxes = TaxCalculator.calculateTaxes(person);
+  outTable.update(taxes);
+  var projection = FutureCalculator.projectFuture(person);
+  chart.update(projection);
+
 });
