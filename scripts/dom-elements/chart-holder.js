@@ -39,7 +39,7 @@ CanvasHandler.prototype.update = function(dataSeries) {
 
   _.each(labels, (label) => {
     if (currentLabels.includes(label)) {
-      var series = _.find(this.chart.data.datesets, (set) => {
+      var series = _.find(this.chart.data.datasets, (set) => {
         return set.label === label;
       });
       series.data = dataSeries[label];
@@ -47,7 +47,8 @@ CanvasHandler.prototype.update = function(dataSeries) {
       var newData = {
         label: label,
         data: dataSeries[label],
-        fill: true
+        fill: '-1',
+        backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16)
       };
       this.chart.data.datasets.push(newData);
     }
@@ -66,6 +67,9 @@ CanvasHandler.prototype.drawChart = function(canvas)  {
         xAxes: [{
           type: 'linear',
           position: 'bottom'
+        }],
+        yAxes: [{
+          stacked: true
         }]
       }
     }
