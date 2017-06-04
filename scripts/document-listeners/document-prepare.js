@@ -6,9 +6,10 @@ document.addEventListener("DOMContentLoaded", function() {
     { label: 'Roth Contributions', type: 'number', default: 2000 },
     { label: 'Brokerage Investments', type: 'number', default: 1000 },
     { label: 'Years to Retirement', type: 'number', default: 20 },
+    { label: 'Retirement Spending', type: 'number', default: 10000 },
   ];
 
-  var newTable =  new InputTableElement({
+  var inputTable =  new InputTableElement({
     cssClasses: ['person-table'],
     titleRow: { title: 'Enter Your Financial Information' },
     rows: inputRows
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var personListener = new PersonListener(inputRows);
 
-  var outTable = new OutputTableElement({
+  var taxTable = new OutputTableElement({
     cssClasses: ['output-table'],
     titleRow: { title: 'Tax Breakdown' },
     rows: [
@@ -33,26 +34,38 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }, '.main');
 
-  var button = new Button({
-    text: 'Calculate Your Taxes',
-    onClick: function() {
+  var calculateProjection = function(personListener, chart) {
+    return () => {
       var person = personListener.getInput();
-      var taxes = TaxCalculator.calculateTaxes(person);
-      outTable.update(taxes);
       var projection = FutureCalculator.projectFuture(person);
       chart.update(projection);
-    }
+    };
+  };
+
+  var calculateTaxes = function(personListener, taxTable) {
+    return () => {
+      var person = personListener.getInput();
+      var taxes = TaxCalculator.calculateTaxes(person);
+      taxTable.update(taxes);
+    };
+  };
+
+  var taxButton = new Button({
+    text: 'Calculate Your Taxes',
+    onClick: calculateTaxes(personListener, taxTable)
   }, '.main');
 
-  button.prepare();
-  newTable.prepare();
-  outTable.prepare();
-  chart.prepare();
-  //TODO: extract this out to a shared new "listener class"
-  var person = personListener.getInput();
-  var taxes = TaxCalculator.calculateTaxes(person);
-  outTable.update(taxes);
-  var projection = FutureCalculator.projectFuture(person);
-  chart.update(projection);
+  var projectionButton = new Button({
+    text: 'Project Income',
+    onClick: calculateProjection(personListener, chart)
+  }, '.main');
 
+  taxButton.prepare();
+  projectionButton.prepare();
+  inputTable.prepare();
+  taxTable.prepare();
+  chart.prepare();
+  //TODO: Consolidate this construction step.
+  calculateProjection(personListener, chart)();
+  calculateTaxes(personListener, taxTable)();
 });
