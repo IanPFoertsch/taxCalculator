@@ -2,11 +2,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var inputRows = [
     { label: 'Gross Income', type: 'number', default: 50000 },
-    { label: 'Pre-Tax Contributions', type: 'number', default: 5000 },
-    { label: 'Roth Contributions', type: 'number', default: 2000 },
+    { label: 'Traditional IRA Contributions', type: 'number', default: 5000 },
+    { label: 'Roth IRA Contributions', type: 'number', default: 2000 },
     { label: 'Brokerage Investments', type: 'number', default: 1000 },
     { label: 'Years to Retirement', type: 'number', default: 20 },
     { label: 'Retirement Spending', type: 'number', default: 10000 },
+    { label: 'Retirement Length', type: 'number', default: 30 },
   ];
 
   var inputTable =  new InputTableElement({
@@ -28,10 +29,16 @@ document.addEventListener("DOMContentLoaded", function() {
     ]
   }, '.main');
 
-  var chart = new ChartHolder({
+  //net worth chart
+  var netWorthChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: {
-    }
+    canvas: {}
+  }, '.main');
+
+  //withdrawal chart
+  var withdrawalChart = new ChartHolder({
+    cssClasses: ['chart-holder'],
+    canvas: {}
   }, '.main');
 
   var calculateProjection = function(personListener, chart) {
@@ -57,15 +64,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var projectionButton = new Button({
     text: 'Project Income',
-    onClick: calculateProjection(personListener, chart)
+    onClick: calculateProjection(personListener, netWorthChart)
   }, '.main');
 
-  taxButton.prepare();
-  projectionButton.prepare();
-  inputTable.prepare();
-  taxTable.prepare();
-  chart.prepare();
+
+  var prepareables = [
+    taxButton,
+    projectionButton,
+    inputTable,
+    taxTable,
+    netWorthChart,
+    withdrawalChart
+  ];
+
+  _.each(prepareables, (prepareable) => {
+    prepareable.prepare();
+  });
+
   //TODO: Consolidate this construction step.
-  calculateProjection(personListener, chart)();
+  calculateProjection(personListener, netWorthChart)();
   calculateTaxes(personListener, taxTable)();
 });
