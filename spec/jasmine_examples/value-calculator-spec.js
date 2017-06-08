@@ -56,5 +56,24 @@ describe('ValueCalculator', function() {
         );
       });
     });
+
+    describe('with an optional starting year', () => {
+      let startingYear = 10;
+      let mapping = ValueCalculator.projectInvestmentGrowth(
+        startingValue,
+        lengthOfTime,
+        interestRate,
+        contributionPerPeriod,
+        startingYear
+      );
+
+      it('should start the calculations at the specified starting period', () => {
+        expect(mapping[0]['x']).toEqual(startingYear);
+      });
+
+      it('should add the starting period to each time index', () => {
+        expect(mapping[1]['x']).toEqual(startingYear + 1);
+      });
+    })
   });
 });
