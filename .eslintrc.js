@@ -30,6 +30,7 @@ module.exports = {
   },
   globals: {
     "_": true,
-    "Calculator": true
+    "Calculator": true,
+    "Constants": true
   }
 };

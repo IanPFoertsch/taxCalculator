@@ -1,38 +1,36 @@
 'use-strict';
 var ValueCalculator = Calculator.ValueCalculator;
+const ACCOUNT_TYPES = [
+  Constants.ROTH_IRA,
+  Constants.TRADITIONAL_IRA,
+  Constants.BROKERAGE
+];
+var DEFAULT_GROWTH_RATE = Constants.DEFAULT_GROWTH_RATE;
 
 //Accepts a person object, returns a future projection
 function FutureCalculator() {}
-
-const DEFAULT_GROWTH_RATE = 0.03;
-//THIS IS GOOFY - have a single identifier for both contribution and account
-const ROTH_IRA = 'Roth IRA'
-const CONTRIBUTIONS_TO_INVESTMENTS = {
-  'Roth IRA Contributions': 'Roth IRA Account',
-  'Traditional IRA Contributions': 'Traditional IRA Account'
-};
 
 FutureCalculator.projectFuture = function(person) {
   //TODO: extract these string literals out into a series of constants
   var workingYears = person['Years to Retirement'];
   var retirementYears = person['Retirement Length'];
   var annualSpending = person['Retirement Spending'];
-
-  //TODO: Refactor this step out to be more modular and easier to understand
-  var workingProjection = _.reduce(CONTRIBUTIONS_TO_INVESTMENTS, (memo, outputLabel, inputLabel) => {
-    memo[outputLabel] = ValueCalculator.projectInvestmentGrowth(
+  console.log(person);
+  var workingProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
+    memo[accountType] = ValueCalculator.projectInvestmentGrowth(
       0,
       workingYears,
       DEFAULT_GROWTH_RATE,
-      person[inputLabel]
+      person[accountType]
     );
     return memo;
   }, {});
+  console.log(JSON.stringify(workingProjection));
   //get the final year balances and project that into the future with annual withdrawals
   if(retirementYears) {
-    var retirementProjection = _.reduce(CONTRIBUTIONS_TO_INVESTMENTS, (memo, outputLabel, inputLabel) => {
-      memo[outputLabel] = ValueCalculator.projectInvestmentGrowth(
-        workingProjection[outputLabel].pop()['y'], //starting balance is the final mapped outputLabel
+    var retirementProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
+      memo[accountType] = ValueCalculator.projectInvestmentGrowth(
+        workingProjection[accountType].pop()['y'], //starting balance is the final mapped outputLabel
         retirementYears,
         DEFAULT_GROWTH_RATE,
         -annualSpending,
@@ -47,10 +45,11 @@ FutureCalculator.projectFuture = function(person) {
 };
 
 FutureCalculator.appendProjections = function(workingProjection, retirementProjection) {
-  var fields = Object.values(CONTRIBUTIONS_TO_INVESTMENTS);
   var result = {};
-  _.each(fields, (field) => {
-    result[field] = workingProjection[field].concat(retirementProjection[field]);
+  _.each(ACCOUNT_TYPES, (accountType) => {
+    result[accountType] = workingProjection[accountType].concat(
+      retirementProjection[accountType]
+    );
   });
 
   return result;
