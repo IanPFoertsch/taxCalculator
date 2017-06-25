@@ -6,8 +6,7 @@ describe('FutureCalculator', function() {
 
     it('should return a projection for the specified time period', () => {
       var result = FutureCalculator.projectFuture(person);
-
-      expect(result.length).toEqual(11);
+      expect(result['Roth IRA Account'].length).toEqual(11);
     });
 
     it('should have a field for each type of account', () => {
@@ -20,16 +19,25 @@ describe('FutureCalculator', function() {
 
     describe('with a specified retirement period', () => {
       let person = {
-        'Years to Retirement': 10,
+        'Years to Retirement': 20,
         'Roth IRA Contributions': 100,
         'Retirement Length': 10,
         'Retirement Spending': 100
       };
 
-      fit('it should calculate for the sum of the working and retirement periods', () => {
+      it('it should calculate for the sum of the working and retirement periods', () => {
         var result = FutureCalculator.projectFuture(person);
+        expect(result['Roth IRA Account'].length).toEqual(31);
+      });
 
-        expect(result['Roth IRA Account'].length).toEqual(21);
+      it('it should append the time indexes of the working and retirement periods', () => {
+        var result = FutureCalculator.projectFuture(person);
+        var roth = result['Roth IRA Account'];
+
+        _.reduce(roth, (index, entry) => {
+          expect(entry.x).toEqual(index);
+          return entry.x + 1;
+        }, 0);
       });
     });
   });
