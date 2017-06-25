@@ -10,8 +10,8 @@ function PersonListener(rows) {
 }
 
 PersonListener.prototype.getInput = function() {
-  return _.reduce(this.listeners, function(person, listener, name) {
-    person[name] = listener.getInput();
+  return _.reduce(this.listeners, function(person, listener) {
+    person[listener.outputLabel()] = listener.getInput();
     return person;
   }, {});
 };

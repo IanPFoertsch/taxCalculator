@@ -1,3 +1,4 @@
+var ValueCalculator = Calculator.ValueCalculator;
 
 describe('ValueCalculator', function() {
   describe('projectInvestmentGrowth', () => {

@@ -7,6 +7,10 @@ InputListener.prototype.getInput = function() {
   return element.value;
 };
 
+InputListener.prototype.outputLabel = function() {
+  return this.config.output;
+};
+
 function NumericInputListener(config) {
   InputListener.call(this, config);
 }
