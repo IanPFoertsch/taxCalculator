@@ -34,6 +34,7 @@ CanvasHandler.prototype.update = function(dataSeries) {
   //TODO: break this out to have a "ChartAdapter" class to map
   //logic to specific input requirements for different chart types
   //or charting libraries.
+  console.log(dataSeries);
   var currentLabels = _.map(this.chart.data.datasets, (set) => {
     return set.label;
   });

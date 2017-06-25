@@ -42,7 +42,6 @@ describe('ValueCalculator', function() {
       });
     });
 
-
     describe('with contributions per period', () => {
       let contributionPerPeriod = 100;
       let mapping = calculate(startingValue, lengthOfTime, interestRate, contributionPerPeriod);
@@ -68,12 +67,12 @@ describe('ValueCalculator', function() {
       );
 
       it('should start the calculations at the specified starting period', () => {
-        expect(mapping[0]['x']).toEqual(startingYear);
+        expect(mapping[0].x).toEqual(startingYear);
       });
 
       it('should add the starting period to each time index', () => {
-        expect(mapping[1]['x']).toEqual(startingYear + 1);
+        expect(mapping[1].x).toEqual(startingYear + 1);
       });
-    })
+    });
   });
 });

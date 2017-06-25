@@ -35,12 +35,6 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas: {}
   }, '.main');
 
-  //withdrawal chart
-  var withdrawalChart = new ChartHolder({
-    cssClasses: ['chart-holder'],
-    canvas: {}
-  }, '.main');
-
   var calculateProjection = function(personListener, chart) {
     return () => {
       var person = personListener.getInput();
@@ -74,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
     inputTable,
     taxTable,
     netWorthChart,
-    withdrawalChart
   ];
 
   _.each(prepareables, (prepareable) => {
