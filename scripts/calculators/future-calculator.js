@@ -15,7 +15,7 @@ FutureCalculator.projectFuture = function(person) {
   var workingYears = person['Years to Retirement'];
   var retirementYears = person['Retirement Length'];
   var annualSpending = person['Retirement Spending'];
-  console.log(person);
+
   var workingProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
     memo[accountType] = ValueCalculator.projectInvestmentGrowth(
       0,
@@ -25,7 +25,7 @@ FutureCalculator.projectFuture = function(person) {
     );
     return memo;
   }, {});
-  console.log(JSON.stringify(workingProjection));
+
   //get the final year balances and project that into the future with annual withdrawals
   if(retirementYears) {
     var retirementProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {

@@ -74,7 +74,14 @@ document.addEventListener("DOMContentLoaded", function() {
     prepareable.prepare();
   });
 
-  //TODO: Consolidate this construction step.
-  calculateProjection(personListener, netWorthChart)();
-  calculateTaxes(personListener, taxTable)();
+  //TODO: Consolidate this step - this is really updating the DOM,
+  //so we should have a prepareables object list and a updateable function list
+  var updateables = [
+    calculateProjection(personListener, netWorthChart),
+    calculateTaxes(personListener, taxTable)
+  ];
+
+  _.each(updateables, (updateable) => {
+    updateable();
+  });
 });
