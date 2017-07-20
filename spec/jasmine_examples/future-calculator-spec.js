@@ -26,7 +26,7 @@ describe('FutureCalculator', function() {
         'Retirement Spending': 100
       };
 
-      fit('it should calculate for the sum of the working and retirement periods', () => {
+      it('it should calculate for the sum of the working and retirement periods', () => {
         var result = FutureCalculator.projectFuture(person);
         expect(result[Constants.ROTH_IRA].length).toEqual(11);
       });

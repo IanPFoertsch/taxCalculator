@@ -32,14 +32,21 @@ document.addEventListener("DOMContentLoaded", function() {
   //net worth chart
   var netWorthChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: {}
+    canvas: { type: 'line'}
   }, '.main');
 
-  var calculateProjection = function(personListener, chart) {
+  var cashFlowChart = new ChartHolder({
+    cssClasses: ['chart-holder'],
+    canvas: { type: 'bar'}
+  }, '.main');
+
+  var calculateProjection = function(personListener, charts) {
     return () => {
       var person = personListener.getInput();
       var projection = FutureCalculator.projectFuture(person);
-      chart.update(projection);
+      _.each(charts, (chart) => {
+        chart.update(projection);
+      });
     };
   };
 
@@ -68,17 +75,16 @@ document.addEventListener("DOMContentLoaded", function() {
     inputTable,
     taxTable,
     netWorthChart,
+    cashFlowChart,
   ];
 
   _.each(prepareables, (prepareable) => {
     prepareable.prepare();
   });
 
-  //TODO: Consolidate this step - this is really updating the DOM,
-  //so we should have a prepareables object list and a updateable function list
   var updateables = [
-    calculateProjection(personListener, netWorthChart),
-    calculateTaxes(personListener, taxTable)
+    calculateProjection(personListener, [netWorthChart, cashFlowChart]),
+    calculateTaxes(personListener, taxTable),
   ];
 
   _.each(updateables, (updateable) => {
