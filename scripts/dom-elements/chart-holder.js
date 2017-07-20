@@ -1,3 +1,35 @@
+var stackedLineConfig = function() {
+  return {
+    type: 'line',
+    data: { datasets: [{}] },
+    options: { scales: {
+      xAxes: [{
+        type: 'linear',
+        position: 'bottom'
+      }],
+      yAxes: [{
+        stacked: true
+      }] }
+    }
+  };
+};
+
+var stackedBarConfig = function() {
+  return {
+    type: 'bar',
+    data: { datasets: [{}] },
+    options: { scales: {
+      xAxes: [{
+        stacked: true
+      }],
+      yAxes: [{
+        stacked: true
+      }] }
+    }
+  };
+};
+
+
 function ChartHolder(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.type = 'Div';
@@ -60,21 +92,14 @@ CanvasHandler.prototype.update = function(dataSeries) {
 };
 
 CanvasHandler.prototype.drawChart = function(canvas)  {
-  this.chart =  new Chart(canvas, {
-    type: 'line',
-    data: {
-      datasets: [{}]
-    },
-    options: {
-      scales: {
-        xAxes: [{
-          type: 'linear',
-          position: 'bottom'
-        }],
-        yAxes: [{
-          stacked: true
-        }]
-      }
+  var chartConfig = (function(type) {
+    switch(type) {
+    case 'line':
+      return stackedLineConfig();
+    case 'bar':
+      return stackedBarConfig();
     }
-  });
+  })(this.config.type);
+
+  this.chart = new Chart(canvas, chartConfig);
 };

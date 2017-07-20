@@ -32,19 +32,21 @@ document.addEventListener("DOMContentLoaded", function() {
   //net worth chart
   var netWorthChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: {}
+    canvas: { type: 'line'}
   }, '.main');
 
   var cashFlowChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: {}
+    canvas: { type: 'bar'}
   }, '.main');
 
-  var calculateProjection = function(personListener, chart) {
+  var calculateProjection = function(personListener, charts) {
     return () => {
       var person = personListener.getInput();
       var projection = FutureCalculator.projectFuture(person);
-      chart.update(projection);
+      _.each(charts, (chart) => {
+        chart.update(projection);
+      });
     };
   };
 
@@ -81,8 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   var updateables = [
-    calculateProjection(personListener, netWorthChart),
-    calculateProjection(personListener, cashFlowChart),
+    calculateProjection(personListener, [netWorthChart, cashFlowChart]),
     calculateTaxes(personListener, taxTable),
   ];
 
