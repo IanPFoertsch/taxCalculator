@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
 
   var inputRows = [
     { label: 'Gross Income', type: 'number', default: 50000, output: 'Gross Income' },
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var calculateProjection = function(personListener, charts) {
     return () => {
       var person = personListener.getInput();
-      var projection = FutureCalculator.projectFuture(person);
+      var projection = FutureCalculator.projectAccounts(person);
       _.each(charts, (chart) => {
         chart.update(projection);
       });
