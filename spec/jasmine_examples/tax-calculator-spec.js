@@ -50,13 +50,4 @@ describe('TaxCalculator', function() {
       });
     });
   });
-
-  // describe('net income', function() {
-  //   var grossIncome = 50000;
-  //   it('should calculate net income after witholdings, deductions and income taxes', function() {
-  //     expect(TaxCalculator.netIncome(grossIncome)).toEqual(
-  //       TaxCalculator.medicareWithholding
-  //     );
-  //   });
-  // });
 });

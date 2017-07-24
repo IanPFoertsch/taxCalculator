@@ -1,5 +1,6 @@
 'use-strict';
 var ValueCalculator = Calculator.ValueCalculator;
+var TaxCalculator = Calculator.TaxCalculator;
 const ACCOUNT_TYPES = [
   Constants.ROTH_IRA,
   Constants.TRADITIONAL_IRA,
@@ -7,10 +8,32 @@ const ACCOUNT_TYPES = [
 ];
 var DEFAULT_GROWTH_RATE = Constants.DEFAULT_GROWTH_RATE;
 
-//Accepts a person object, returns a future projection
+
 function FutureCalculator() {}
 
-FutureCalculator.projectFuture = function(person) {
+FutureCalculator.projectCashFlows = function(person) {
+  var workingYears = person['Years to Retirement'];
+  //TODO: The income during retirement depends upon the withdrawal strategy
+  //Leave this unimplemented for now until we work out the withdrawal strategy
+  //problem
+  // var retirementYears = person['Retirement Length'];
+
+  // _.each(_.range(1, lengthOfTime + 1), (timeIndex) => {
+  var workingProjection = _.reduce(_.range(workingYears), (memo) => {
+    var projection = TaxCalculator.calculateTaxes(person);
+    //Add the account contributions to the projection
+    _.each(ACCOUNT_TYPES, (account_type) => {
+      //Assume for now that contributions remain constant
+      projection[account_type] = person[account_type] || 0;
+    });
+    memo.push(projection);
+    return memo;
+  }, []);
+
+  return workingProjection;
+};
+
+FutureCalculator.projectAccounts = function(person) {
   //TODO: extract these string literals out into a series of constants
   var workingYears = person['Years to Retirement'];
   var retirementYears = person['Retirement Length'];
@@ -33,6 +56,8 @@ FutureCalculator.projectFuture = function(person) {
         workingProjection[accountType].pop()['y'], //starting balance is the final mapped outputLabel
         retirementYears,
         DEFAULT_GROWTH_RATE,
+        // TODO: At the moment we're subtracting the annual spending from
+        // each account - add withdrawal strategies.
         -annualSpending,
         workingYears
       );
