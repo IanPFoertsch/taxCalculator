@@ -10,7 +10,7 @@ ValueCalculator.projectInvestmentGrowth = function(
   startingBalance,
   lengthOfTime,
   interestRate,
-  contributionPerPeriod
+  contributionPerPeriod = 0
 ) {
   //assumes contributions and interest accrue at end of period
   return _.reduce(_.range(1, lengthOfTime + 1), (memo) => {

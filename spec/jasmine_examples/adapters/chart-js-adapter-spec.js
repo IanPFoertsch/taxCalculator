@@ -15,8 +15,8 @@ describe('ChartJSAdapter', function() {
     });
 
     it('should format the data to {x: _, y: _} format', () => {
-      expect(result.a[0]).toEqual({ x:1, y: 0 });
-      expect(result.a[1]).toEqual({ x:2, y: 1 });
+      expect(result.a[0]).toEqual({ x:0, y: 1 });
+      expect(result.a[1]).toEqual({ x:1, y: 2 });
     });
   });
 });

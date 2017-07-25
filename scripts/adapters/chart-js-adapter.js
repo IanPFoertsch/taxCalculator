@@ -11,8 +11,8 @@ ChartJSAdapter.cashFlowConversion = function(projection) {
       chartFormatted[key] = chartFormatted[key] || [];
 
       var singleValue = {
-        x: item[key],
-        y: index
+        x: index,
+        y: item[key],
       };
 
       chartFormatted[key].push(singleValue);
