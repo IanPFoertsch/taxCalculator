@@ -10,24 +10,16 @@ ValueCalculator.projectInvestmentGrowth = function(
   startingBalance,
   lengthOfTime,
   interestRate,
-  contributionPerPeriod,
-  startingYear = 0
+  contributionPerPeriod
 ) {
   //assumes contributions and interest accrue at end of period
-  let runningBalance = startingBalance;
-  let mapping = [{ x: startingYear, y: startingBalance }];
-
-  _.each(_.range(1, lengthOfTime + 1), (timeIndex) => {
-    //x = time period
-    //y = value
+  return _.reduce(_.range(1, lengthOfTime + 1), (memo) => {
+    var runningBalance = memo[memo.length - 1];
     var growthFromInterest = runningBalance * interestRate;
     runningBalance = runningBalance + growthFromInterest + contributionPerPeriod;
-    //TODO: this is some ChartJS specific logic here - extract this out into a
-    //seperate ChartJS adapter
-    mapping.push({ x: timeIndex + startingYear, y: runningBalance});
-  });
-
-  return mapping;
+    memo.push(runningBalance);
+    return memo;
+  }, [startingBalance]);
 };
 
 Calculator.ValueCalculator = ValueCalculator;

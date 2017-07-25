@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var cashFlows = FutureCalculator.projectCashFlows(person);
-        //TODO:process these values to chart-js formatted data
+        var converted = ChartJSAdapter.cashFlowConversion(cashFlows);
+
         this.update(cashFlows);
       };
     }(personListener)
