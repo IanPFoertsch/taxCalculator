@@ -17,8 +17,6 @@ FutureCalculator.projectCashFlows = function(person) {
   //Leave this unimplemented for now until we work out the withdrawal strategy
   //problem
   // var retirementYears = person['Retirement Length'];
-
-  // _.each(_.range(1, lengthOfTime + 1), (timeIndex) => {
   var workingProjection = _.reduce(_.range(workingYears), (memo) => {
     var projection = TaxCalculator.calculateTaxes(person);
     //Add the account contributions to the projection
@@ -29,7 +27,6 @@ FutureCalculator.projectCashFlows = function(person) {
     memo.push(projection);
     return memo;
   }, []);
-
   return workingProjection;
 };
 

@@ -33,7 +33,7 @@ var stackedBarConfig = function() {
 function ChartHolder(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.type = 'Div';
-
+  this.updateFunction = config.updateFunction;
   this.canvasHandler = new CanvasHandler(config.canvas, this.identifier);
 }
 

@@ -18,62 +18,57 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var personListener = new PersonListener(inputRows);
 
-  var taxTable = new OutputTableElement({
-    cssClasses: ['output-table'],
-    titleRow: { title: 'Tax Breakdown' },
-    rows: [
-      { label: 'Federal Income Tax', value: '$0.0'},
-      { label: 'Social Security Withholding', value: '$0.0'},
-      { label: 'Medicare Withholding', value: '$0.0'},
-      { label: 'Net Income', value: '$0.0'}
-    ]
-  }, '.main');
-
-  //net worth chart
   var netWorthChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: { type: 'line'}
+    canvas: { type: 'line'},
+    updateFunction: function(personListener) {
+      return function(chart) {
+        var person = personListener.getInput();
+        var accountProjection = FutureCalculator.projectAccounts(person);
+        this.update(accountProjection);
+      };
+    }(personListener)
   }, '.main');
 
   var cashFlowChart = new ChartHolder({
     cssClasses: ['chart-holder'],
-    canvas: { type: 'bar'}
+    canvas: { type: 'bar'},
+    updateFunction: function(personListener) {
+      return function(chart) {
+        var person = personListener.getInput();
+        var cashFlows = FutureCalculator.projectCashFlows(person);
+        var converted = ChartJSAdapter.cashFlowConversion(cashFlows);
+
+        this.update(cashFlows);
+      };
+    }(personListener)
   }, '.main');
+
 
   var calculateProjection = function(personListener, charts) {
     return () => {
       var person = personListener.getInput();
-      var projection = FutureCalculator.projectAccounts(person);
+      var accountProjection = FutureCalculator.projectAccounts(person);
       _.each(charts, (chart) => {
-        chart.update(projection);
+        chart.update(accountProjection);
       });
     };
   };
 
-  var calculateTaxes = function(personListener, taxTable) {
-    return () => {
-      var person = personListener.getInput();
-      var taxes = TaxCalculator.calculateTaxes(person);
-      taxTable.update(taxes);
-    };
-  };
-
-  var taxButton = new Button({
-    text: 'Calculate Your Taxes',
-    onClick: calculateTaxes(personListener, taxTable)
-  }, '.main');
 
   var projectionButton = new Button({
     text: 'Project Income',
-    onClick: calculateProjection(personListener, netWorthChart)
+    onClick: function() {
+      _.each([netWorthChart, cashFlowChart], (chartHolder) => {
+        chartHolder.updateFunction();
+      });
+    }
   }, '.main');
 
-
+  //Prepare and populate the DOM
   var prepareables = [
-    taxButton,
     projectionButton,
     inputTable,
-    taxTable,
     netWorthChart,
     cashFlowChart,
   ];
@@ -82,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function() {
     prepareable.prepare();
   });
 
+  //TODO: this is a duplication of the update logic - remove me
   var updateables = [
     calculateProjection(personListener, [netWorthChart, cashFlowChart]),
-    calculateTaxes(personListener, taxTable),
   ];
 
   _.each(updateables, (updateable) => {
