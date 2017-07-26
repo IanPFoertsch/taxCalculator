@@ -31,10 +31,8 @@ FutureCalculator.projectCashFlows = function(person) {
 };
 
 FutureCalculator.projectAccounts = function(person) {
-  //TODO: extract these string literals out into a series of constants
+  //TODO: create a person model and consolidate this logic there
   var workingYears = person['Years to Retirement'];
-  var retirementYears = person['Retirement Length'];
-  var annualSpending = person['Retirement Spending'];
 
   var workingProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
     memo[accountType] = ValueCalculator.projectInvestmentGrowth(
@@ -45,25 +43,21 @@ FutureCalculator.projectAccounts = function(person) {
     );
     return memo;
   }, {});
+  //TODO: Once we have withdrawal strategies, add the spend-down period here
+  return FutureCalculator.convertToObjectifiedForm(workingProjection, workingYears);
+};
 
-  //get the final year balances and project that into the future with annual withdrawals
-  if(retirementYears) {
-    var retirementProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
-      memo[accountType] = ValueCalculator.projectInvestmentGrowth(
-        workingProjection[accountType].pop()['y'], //starting balance is the final mapped outputLabel
-        retirementYears,
-        DEFAULT_GROWTH_RATE,
-        // TODO: At the moment we're subtracting the annual spending from
-        // each account - add withdrawal strategies.
-        -annualSpending,
-        workingYears
-      );
-      return memo;
+FutureCalculator.convertToObjectifiedForm = function(projection, totalTimePeriod) {
+  return _.reduce(_.range(0, totalTimePeriod + 1), (memo, timeIndex) => {
+    var values = _.reduce(ACCOUNT_TYPES, (type_memo, type) => {
+      type_memo[type] = projection[type][timeIndex];
+      return type_memo;
     }, {});
-    return FutureCalculator.appendProjections(workingProjection, retirementProjection);
-  } else {
-    return workingProjection;
-  }
+
+    memo.push(values);
+
+    return memo;
+  }, []);
 };
 
 FutureCalculator.appendProjections = function(workingProjection, retirementProjection) {
@@ -73,11 +67,7 @@ FutureCalculator.appendProjections = function(workingProjection, retirementProje
       retirementProjection[accountType]
     );
   });
-
   return result;
 };
-
-
-
 
 Calculator.FutureCalculator = FutureCalculator;

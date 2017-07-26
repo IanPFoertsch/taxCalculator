@@ -69,7 +69,6 @@ CanvasHandler.prototype.update = function(dataSeries) {
   var currentLabels = _.map(this.chart.data.datasets, (set) => {
     return set.label;
   });
-
   var labels = Object.keys(dataSeries);
 
   _.each(labels, (label) => {

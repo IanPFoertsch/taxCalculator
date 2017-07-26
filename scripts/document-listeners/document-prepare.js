@@ -25,7 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var accountProjection = FutureCalculator.projectAccounts(person);
-        this.update(accountProjection);
+        var converted = ChartJSAdapter.cashFlowConversion(accountProjection);
+        console.log(converted);
+        this.update(converted);
       };
     }(personListener)
   }, '.main');
@@ -38,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var person = personListener.getInput();
         var cashFlows = FutureCalculator.projectCashFlows(person);
         var converted = ChartJSAdapter.cashFlowConversion(cashFlows);
-
-        this.update(cashFlows);
+        this.update(converted);
       };
     }(personListener)
   }, '.main');
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateProjection(personListener, [netWorthChart, cashFlowChart]),
   ];
 
-  _.each(updateables, (updateable) => {
-    updateable();
-  });
+  // _.each(updateables, (updateable) => {
+  //   updateable();
+  // });
 });
