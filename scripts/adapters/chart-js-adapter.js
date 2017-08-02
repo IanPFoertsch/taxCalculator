@@ -1,7 +1,7 @@
 'use-strict';
 function ChartJSAdapter() {}
 
-ChartJSAdapter.cashFlowConversion = function(projection) {
+ChartJSAdapter.lineChartConversion = function(projection) {
   var chartFormatted = {};
 
   var keys = Object.keys(projection[0]);
@@ -20,4 +20,31 @@ ChartJSAdapter.cashFlowConversion = function(projection) {
   });
 
   return chartFormatted;
+};
+
+ChartJSAdapter.stackedBarChartConversion = function(projection) {
+  // see: https://stackoverflow.com/questions/37499623/chart-js-stacked-and-grouped-bar-chart
+  // better yet see: https://jsfiddle.net/Lvj2qnrp/1/
+  var keys = Object.keys(projection[0]);
+  var result = {
+    labels: keys,
+  };
+  var datasets = _.reduce(keys, (memo, key) => {
+    var data = _.reduce(projection, (memo, singlePeriod) => {
+      var value = singlePeriod[key];
+      memo.push(value);
+      return memo;
+    }, []);
+
+    memo.push({
+      label: key,
+      backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      stack: 'Stack ' + keys.indexOf(key),
+      data: data
+    });
+    return memo;
+  }, []);
+
+  result['datasets'] = datasets;
+  return result;
 };

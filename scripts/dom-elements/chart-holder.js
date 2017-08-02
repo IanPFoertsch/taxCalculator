@@ -81,12 +81,13 @@ CanvasHandler.prototype.update = function(dataSeries) {
       var newData = {
         label: label,
         data: dataSeries[label],
-        fill: '-1',
+        fill: '2',
         backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16)
       };
       this.chart.data.datasets.push(newData);
     }
   });
+
   this.chart.update();
 };
 

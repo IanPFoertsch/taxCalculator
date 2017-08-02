@@ -25,8 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var accountProjection = FutureCalculator.projectAccounts(person);
-        var converted = ChartJSAdapter.cashFlowConversion(accountProjection);
-        console.log(converted);
+        var converted = ChartJSAdapter.lineChartConversion(accountProjection);
         this.update(converted);
       };
     }(personListener)
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var cashFlows = FutureCalculator.projectCashFlows(person);
-        var converted = ChartJSAdapter.cashFlowConversion(cashFlows);
+        var converted = ChartJSAdapter.stackedBarChartConversion(cashFlows);
         this.update(converted);
       };
     }(personListener)
@@ -80,10 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //TODO: this is a duplication of the update logic - remove me
   var updateables = [
-    calculateProjection(personListener, [netWorthChart, cashFlowChart]),
+    netWorthChart, cashFlowChart
   ];
 
-  // _.each(updateables, (updateable) => {
-  //   updateable();
-  // });
+  _.each(updateables, (updateable) => {
+    updateable.updateFunction();
+  });
 });
