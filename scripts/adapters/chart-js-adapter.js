@@ -82,7 +82,7 @@ ChartJSAdapter.stackedBarChartConversion = function(projection) {
     memo.push({
       label: key,
       backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
-      stack: 'Stack ' + keys.indexOf(key),
+      stack: 'Stack 0',
       data: data
     });
     return memo;
