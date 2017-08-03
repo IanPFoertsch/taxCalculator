@@ -1,40 +1,19 @@
-var stackedLineConfig = function() {
-  return {
-    type: 'line',
-    data: { datasets: [{}] },
-    options: { scales: {
-      xAxes: [{
-        type: 'linear',
-        position: 'bottom'
-      }],
-      yAxes: [{
-        stacked: true
-      }] }
-    }
-  };
-};
-
-var stackedBarConfig = function() {
-  return {
-    type: 'bar',
-    data: { datasets: [{}] },
-    options: { scales: {
-      xAxes: [{
-        stacked: true
-      }],
-      yAxes: [{
-        stacked: true
-      }] }
-    }
-  };
-};
 
 
 function ChartHolder(config, parentIdentifier) {
   DOMElement.call(this, config, parentIdentifier);
   this.type = 'Div';
   this.updateFunction = config.updateFunction;
-  this.canvasHandler = new CanvasHandler(config.canvas, this.identifier);
+  var handlerClazz = (function(type) {
+    switch(type) {
+    case 'line':
+      return LineCanvasHandler;
+    case 'bar':
+      return CanvasHandler;
+    }
+  })(this.config.canvas.type);
+
+  this.canvasHandler = new handlerClazz(config.canvas, this.identifier);
 }
 
 ChartHolder.protoype = Object.create(DOMElement.prototype);
@@ -62,7 +41,13 @@ CanvasHandler.prototype.prepare = function() {
   this.drawChart(this.element);
 };
 
-CanvasHandler.prototype.update = function(dataSeries) {
+function LineCanvasHandler(config, parentIdentifier) {
+  CanvasHandler.call(this, config, parentIdentifier);
+}
+
+LineCanvasHandler.prototype = Object.create(CanvasHandler.prototype);
+
+LineCanvasHandler.prototype.update = function(dataSeries) {
   //TODO: break this out to have a "ChartAdapter" class to map
   //logic to specific input requirements for different chart types
   //or charting libraries.
@@ -92,14 +77,7 @@ CanvasHandler.prototype.update = function(dataSeries) {
 };
 
 CanvasHandler.prototype.drawChart = function(canvas)  {
-  var chartConfig = (function(type) {
-    switch(type) {
-    case 'line':
-      return stackedLineConfig();
-    case 'bar':
-      return stackedBarConfig();
-    }
-  })(this.config.type);
+  var chartConfig = ChartJSAdapter.chartConfig(this.config.type);
 
   this.chart = new Chart(canvas, chartConfig);
 };
