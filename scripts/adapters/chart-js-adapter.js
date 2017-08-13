@@ -69,10 +69,16 @@ ChartJSAdapter.stackedBarChartConversion = function(projection) {
   // see: https://stackoverflow.com/questions/37499623/chart-js-stacked-and-grouped-bar-chart
   // better yet see: https://jsfiddle.net/Lvj2qnrp/1/
   var keys = Object.keys(projection[0]);
+  var labels = _.map(_.range(projection.length), (i) => {
+    return 'Year ' + i;
+  });
+
   var result = {
-    labels: keys,
+    labels: labels,
   };
+
   var datasets = _.reduce(keys, (memo, key) => {
+    var year = 0
     var data = _.reduce(projection, (memo, singlePeriod) => {
       var value = singlePeriod[key];
       memo.push(value);

@@ -27,8 +27,8 @@ describe('ChartJSAdapter', function() {
       result = ChartJSAdapter.stackedBarChartConversion(input);
     });
 
-    it('should have an array of labels for each variable', () => {
-      expect(result.labels).toEqual(['a', 'b']);
+    it('should have an array of labels, one for each time period', () => {
+      expect(result.labels).toEqual(['Year 1', 'Year 2']);
     });
 
     it('should have a background color for each value', () => {
