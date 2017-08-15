@@ -9,7 +9,7 @@ function ChartHolder(config, parentIdentifier) {
     case 'line':
       return LineCanvasHandler;
     case 'bar':
-      return CanvasHandler;
+      return BarCanvasHandler;
     }
   })(this.config.canvas.type);
 
@@ -39,6 +39,12 @@ CanvasHandler.prototype.prepare = function() {
   DOMElement.prototype.prepare.call(this);
 
   this.drawChart(this.element);
+};
+
+CanvasHandler.prototype.drawChart = function(canvas)  {
+  var chartConfig = ChartJSAdapter.chartConfig(this.config.type);
+
+  this.chart = new Chart(canvas, chartConfig);
 };
 
 function LineCanvasHandler(config, parentIdentifier) {
@@ -76,8 +82,33 @@ LineCanvasHandler.prototype.update = function(dataSeries) {
   this.chart.update();
 };
 
-CanvasHandler.prototype.drawChart = function(canvas)  {
-  var chartConfig = ChartJSAdapter.chartConfig(this.config.type);
+function BarCanvasHandler(config, parentIdentifier) {
+  CanvasHandler.call(this, config, parentIdentifier);
+}
 
-  this.chart = new Chart(canvas, chartConfig);
+BarCanvasHandler.prototype = Object.create(CanvasHandler.prototype);
+
+BarCanvasHandler.prototype.update = function(dataSeries) {
+
+  var chartLabels = this.chart.data.labels;
+  var dataLabels = dataSeries.labels;
+  _.each(dataLabels, (label) => {
+    if (chartLabels.includes(label)) {
+      // var series = _.find(this.chart.data.datasets, (set) => {
+      //   return set.label === label;
+      // });
+      // series.data = dataSeries[label];
+    } else {
+      var newData = _.find(dataSeries.datasets, (set) => {
+        return set.label === label;
+      });
+
+      this.chart.data.labels.push(label);
+      this.chart.data.datasets.push(newData);
+    }
+  });
+
+  console.log(this.chart.data)
+
+  this.chart.update();
 };
