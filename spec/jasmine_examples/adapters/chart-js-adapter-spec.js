@@ -28,17 +28,7 @@ describe('ChartJSAdapter', function() {
     });
 
     it('should have an array of labels, one for each time period', () => {
-      expect(result.labels).toEqual(['Year 1', 'Year 2']);
-    });
-
-    it('should have a background color for each value', () => {
-      expect(result.datasets[0].backgroundColor).not.toBeUndefined();
-      expect(result.datasets[1].backgroundColor).not.toBeUndefined();
-    });
-
-    it('should have a stack number for each value', () => {
-      expect(result.datasets[0].stack).not.toBeUndefined();
-      expect(result.datasets[1].stack).not.toBeUndefined();
+      expect(result.labels).toEqual(['Year 0', 'Year 1']);
     });
 
     it('should have a data field for each value', () => {

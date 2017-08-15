@@ -38,8 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var cashFlows = FutureCalculator.projectCashFlows(person);
-        var converted = ChartJSAdapter.stackedBarChartConversion(cashFlows);
-        this.update(converted);
+        this.update(cashFlows);
       };
     }(personListener)
   }, '.main');
