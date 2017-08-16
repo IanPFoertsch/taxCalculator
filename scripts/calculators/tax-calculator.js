@@ -4,13 +4,13 @@ function TaxCalculator() {}
 TaxCalculator.calculateTaxes = function(personObject) {
   let grossIncome = personObject['Gross Income'] || 0;
   let preTaxContributions = personObject['Traditional IRA'] || 0;
-
+  let rothContributions = personObject['Roth IRA'] || 0;
   let incomeLessDeductions = this.lessDeductions(grossIncome, preTaxContributions);
   var taxes = {
     'Federal Income Tax': this.federalIncomeTax(incomeLessDeductions),
     'Social Security Withholding': this.socialSecurityWithholding(grossIncome),
     'Medicare Withholding': this.medicareWithholding(grossIncome),
-    'Net Income': this.netIncome(grossIncome, preTaxContributions)
+    'Net Income': this.netIncome(grossIncome, preTaxContributions) - rothContributions
   };
 
   return taxes;
