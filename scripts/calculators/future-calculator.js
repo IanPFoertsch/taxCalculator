@@ -12,6 +12,7 @@ var DEFAULT_GROWTH_RATE = Constants.DEFAULT_GROWTH_RATE;
 function FutureCalculator() {}
 
 FutureCalculator.projectCashFlows = function(person) {
+  var currentAge = person['Current Age'];
   var workingYears = person['Years to Retirement'];
   //TODO: The income during retirement depends upon the withdrawal strategy
   //Leave this unimplemented for now until we work out the withdrawal strategy
@@ -33,6 +34,8 @@ FutureCalculator.projectCashFlows = function(person) {
 FutureCalculator.projectAccounts = function(person) {
   //TODO: create a person model and consolidate this logic there
   var workingYears = person['Years to Retirement'];
+  var currentAge = person['Current Age'];
+  var targetSpending = person['Retirement Spending'];
 
   var workingProjection = _.reduce(ACCOUNT_TYPES, (memo, accountType) => {
     memo[accountType] = ValueCalculator.projectInvestmentGrowth(
@@ -43,7 +46,9 @@ FutureCalculator.projectAccounts = function(person) {
     );
     return memo;
   }, {});
+
   //TODO: Once we have withdrawal strategies, add the spend-down period here
+  WithdrawalStrategy.withdrawToTarget(workingProjection, targetSpending);
   return FutureCalculator.convertToObjectifiedForm(workingProjection, workingYears);
 };
 

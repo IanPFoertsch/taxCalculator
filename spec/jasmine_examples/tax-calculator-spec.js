@@ -16,7 +16,7 @@ describe('TaxCalculator', function() {
   });
 
   describe('socialSecurityWithholding', function() {
-    it('should apply the correct rate to the gross income', function() {
+    it('should apply the correct rate to the Wages and Compensation', function() {
       expect(TaxCalculator.socialSecurityWithholding(100000)).toEqual(6200);
     });
 

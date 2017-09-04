@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   var inputRows = [
-    { label: 'Gross Income', type: 'number', default: 50000, output: 'Gross Income' },
+    { label: 'Wages and Compensation', type: 'number', default: 50000, output: 'Wages and Compensation' },
     { label: 'Traditional Contributions', type: 'number', default: 5000, output: Constants.TRADITIONAL_IRA },
     { label: 'Roth Contributions', type: 'number', default: 2000, output: Constants.ROTH_IRA },
-    // { label: 'Brokerage Investments', type: 'number', default: 1000, output: Constants.BROKERAGE },
-    { label: 'Years to Retirement', type: 'number', default: 20, output: 'Years to Retirement'},
+    { label: 'Current Age', type: 'number', default: 30, output: 'Current Age' },
+    { label: 'Years to Retirement', type: 'number', default: 20, output: 'Years to Retirement' },
     { label: 'Retirement Spending', type: 'number', default: 10000, output: 'Retirement Spending' },
     { label: 'Retirement Length', type: 'number', default: 30, output: 'Retirement Length' },
   ];

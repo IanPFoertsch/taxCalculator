@@ -2,7 +2,7 @@
 function TaxCalculator() {}
 
 TaxCalculator.calculateTaxes = function(personObject) {
-  let grossIncome = personObject['Gross Income'] || 0;
+  let grossIncome = personObject['Wages and Compensation'] || 0;
   let preTaxContributions = personObject['Traditional IRA'] || 0;
   let rothContributions = personObject['Roth IRA'] || 0;
   let incomeLessDeductions = this.lessDeductions(grossIncome, preTaxContributions);
@@ -65,11 +65,11 @@ TaxCalculator.medicareWithholding = function (income) {
 TaxCalculator.lessDeductions = function (income, deductableContributions) {
 
   //TODO: extract these to a JSON config
-  var deductionsAndExemptions = {
-    'standardDeduction': 6350,
-    'personalExemption': 4050, //assumption is that this is for a single person
-    'deductableContributions': deductableContributions
-  };
+  var deductionsAndExemptions = [
+    Constants.STANDARD_DEDUCTION,
+    Constants.PERSONAL_EXEMPTION, //assumption is that this is for a single person
+    deductableContributions
+  ];
 
   var totalDeductions = _.reduce(deductionsAndExemptions, function(total, value) {
     return (total + value);
