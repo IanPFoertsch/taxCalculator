@@ -24,12 +24,14 @@ module.exports = function(grunt) {
       ]
     },
     express: {
-			all: {
-				options: {
+      // all: {
+      server: {
+        options: {
 					port: 9000,
 					hostname: '0.0.0.0',
-					bases: ['../tax_calculator'],
-					livereload: true
+					bases: ['../taxCalculator'],
+					livereload: true,
+          script: 'index.html'
 				}
 			}
 		}
@@ -39,4 +41,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-express');
   grunt.registerTask('server', ['express', 'watch']);
+
 };

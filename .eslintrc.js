@@ -16,21 +16,21 @@ module.exports = {
       "unix"
     ],
     "quotes": [
-      "error",
+      "warn",
       "single"
     ],
     "semi": [
-      "error",
-      "always"
+      "warn",
+      "never"
     ],
     "no-unused-vars": [
       "warn"
-    ]
-
+    ],
   },
   globals: {
     "_": true,
     "Calculator": true,
-    "Constants": true
+    "Constants": true,
+    "Models": true
   }
 };
