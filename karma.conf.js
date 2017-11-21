@@ -16,6 +16,8 @@ module.exports = function(config) {
       'scripts/adapters/*.js',
       'scripts/constants/*.js',
       'scripts/calculators/*.js',
+      'scripts/models/models.js',
+      'scripts/models/*.js',
       'spec/**/*.js'
     ],
 
@@ -65,5 +67,5 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  });
-};
+  })
+}
