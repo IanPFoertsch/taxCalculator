@@ -11,6 +11,7 @@ function PersonListener(rows) {
 
 PersonListener.prototype.getInput = function() {
   return _.reduce(this.listeners, function(person, listener) {
+    //build a new person?
     person[listener.outputLabel()] = listener.getInput();
     return person;
 }, {});

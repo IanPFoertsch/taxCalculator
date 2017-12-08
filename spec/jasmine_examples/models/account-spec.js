@@ -15,6 +15,23 @@ describe('Account', function() {
     source = new Account('BookKeeping')
   })
 
+  describe('double entry BookKeeping', () => {
+
+    describe('contributions', () => {
+      it('registers the expense on the source account', () => {
+        account.createContribution(time0, invalue, source)
+        expect(source.getValue()).toEqual( - invalue)
+      })
+    })
+
+    describe('expenses', () => {
+      it('when creating an expense, it registers the inflow on the target account', () => {
+        account.createExpense(time0, invalue, source)
+        expect(source.getValue()).toEqual(invalue)
+      })
+    })
+  })
+
   describe('getValue', () => {
     describe('with cashflows inward', () => {
       beforeEach(() => {
@@ -25,12 +42,13 @@ describe('Account', function() {
         expect(account.getValue()).toEqual(invalue)
       })
 
-      describe('with cashflows outward', () => {
+
+            describe('with cashflows outward', () => {
         beforeEach(() => {
-          account.createOutflow(time0, outvalue, source)
+          account.createExpense(time0, outvalue, source)
         })
 
-        it('should return the value of the inflow plus the outflow', () => {
+        it('should return the value of the inflow plus the expense', () => {
           expect(account.getValue()).toEqual(invalue - outvalue)
         })
 
@@ -40,7 +58,7 @@ describe('Account', function() {
             account.createInterestFlow(0, interestValue)
           })
 
-          it('should return the value of the inflow, outflow and interest flow', () => {
+          it('should return the value of the inflow, expense and interest flow', () => {
             expect(account.getValue()).toEqual(invalue - outvalue + interestValue)
           })
         })
@@ -49,16 +67,18 @@ describe('Account', function() {
           var otherOutValue = 25
           beforeEach(() => {
             account.createContribution(time1, invalue, source)
-            account.createOutflow(time0, otherOutValue, source)
+            account.createExpense(time0, otherOutValue, source)
           })
 
-          it('should sum the inflows and outflows over multiple years', () => {
+          it('should sum the inflows and expenses over multiple years', () => {
             expect(account.getValue()).toEqual((invalue * 2) - (outvalue + otherOutValue))
           })
         })
       })
     })
   })
+
+
 
   describe('calculateInterest', () => {
     beforeEach(() => {

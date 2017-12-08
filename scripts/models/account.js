@@ -3,36 +3,57 @@ var CashFlow = Models.CashFlow
 function Account(label) {
   this.label = label
   this.contributions = {}
-  this.outflows = {}
+  this.expenses = {}
   this.interestFlows = {}
 }
 
 Account.prototype.flows = function() {
-  return [this.contributions, this.outflows, this.interestFlows]
+  return [this.contributions, this.expenses, this.interestFlows]
 }
 
 Account.prototype.getValue = function() {
   return _.reduce(this.timeIndices(), (value, index) =>  {
     var contributions = this.contributions[index]
-    var outflows = this.outflows[index]
+    var expenses = this.expenses[index]
     var interestFlows = this.interestFlows[index]
 
     var contribution = this.sumFlow(contributions)
-    var outValue = this.sumFlow(outflows)
+    var outValue = this.sumFlow(expenses)
     var interestValue = this.sumFlow(interestFlows)
 
     return value + (contribution - outValue) + interestValue
   }, 0)
 }
 
-Account.prototype.createContribution = function(timeIndex, value, fromAccount) {
-  this.contributions[timeIndex] = this.contributions[timeIndex] || []
-  this.contributions[timeIndex].push(new CashFlow(timeIndex, value, this, fromAccount))
+//createContribution
+// register cash flow into this account from another account
+// CashFlow.registerCashFlow(timeIndex, value, this, fromAccount)
+//    In CashFlow - registering registers an expense in the fromAccount to this account
+
+//private
+Account.prototype.registerContribution = function(cashFlow) {
+  var time = cashFlow.time
+  this.contributions[time] = this.contributions[time] || []
+  this.contributions[time].push(cashFlow)
 }
 
-Account.prototype.createOutflow = function(timeIndex, value, toAccount) {
-  this.outflows[timeIndex] = this.outflows[timeIndex] || []
-  this.outflows[timeIndex].push(new CashFlow(timeIndex, value, toAccount, this))
+//private
+Account.prototype.registerOutFlow = function(cashFlow) {
+  var time = cashFlow.time
+  this.expenses[time] = this.expenses[time] || []
+  this.expenses[time].push(cashFlow)
+}
+
+Account.prototype.createContribution = function(timeIndex, value, fromAccount) {
+  var flow = new CashFlow(timeIndex, value, this, fromAccount)
+  this.registerContribution(flow)
+  fromAccount.registerOutFlow(flow)
+}
+
+Account.prototype.createExpense = function(timeIndex, value, toAccount) {
+  var flow = new CashFlow(timeIndex, value, toAccount, this)
+  this.registerOutFlow(flow)
+  toAccount.registerContribution(flow)
 }
 
 Account.prototype.createInterestFlow = function(timeIndex, value) {
