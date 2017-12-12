@@ -14,14 +14,15 @@ describe('Person', function() {
     var start = 0
     var end = 1
     var value = 100
-    // fit('should register incomes', () => {
-    //   person.createIncome(
-    //     value,
-    //     start,
-    //     end,
-    //     Constants.WAGES_AND_COMPENSATION,
-    //     Constants.ROTH_IRA)
-    // })
+
+    fit('should register incomes', () => {
+      person.createEmploymentIncome(
+        value,
+        start,
+        end
+      )
+      expect(person.getValue()).toEqual(value * 2)
+    })
 
   })
 

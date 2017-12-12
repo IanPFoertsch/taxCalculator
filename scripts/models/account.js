@@ -11,8 +11,11 @@ Account.prototype.flows = function() {
   return [this.contributions, this.expenses, this.interestFlows]
 }
 
-Account.prototype.getValue = function() {
-  return _.reduce(this.timeIndices(), (value, index) =>  {
+Account.prototype.getValue = function(maxTime) {
+  //TODO: if we create a table of values repeatedly using this maxTime
+  //parameter, we're going to be repeating the same calculations many times
+  //over - amend this to include memoization
+  return _.reduce(this.timeIndices(maxTime), (value, index) =>  {
     var contributions = this.contributions[index]
     var expenses = this.expenses[index]
     var interestFlows = this.interestFlows[index]
@@ -24,11 +27,6 @@ Account.prototype.getValue = function() {
     return value + (contribution - outValue) + interestValue
   }, 0)
 }
-
-//createContribution
-// register cash flow into this account from another account
-// CashFlow.registerCashFlow(timeIndex, value, this, fromAccount)
-//    In CashFlow - registering registers an expense in the fromAccount to this account
 
 //private
 Account.prototype.registerContribution = function(cashFlow) {
@@ -62,11 +60,18 @@ Account.prototype.createInterestFlow = function(timeIndex, value) {
   this.interestFlows[timeIndex].push(new CashFlow(timeIndex, value, this, this.interestSource))
 }
 
-Account.prototype.timeIndices = function() {
+Account.prototype.timeIndices = function(maxTime) {
   var indices = _.reduce(this.flows(), (memo, flow) => {
     return memo.concat(Object.keys(flow))
   }, [])
-  return Array.from(new Set(indices)).sort()
+  var sorted = Array.from(new Set(indices)).sort()
+  if (maxTime != undefined) {
+    return _.filter(sorted, (index) => {
+      return parseInt(index) <= maxTime
+    })
+  } else {
+    return sorted
+  }
 }
 
 Account.prototype.sumFlow = function(flows) {

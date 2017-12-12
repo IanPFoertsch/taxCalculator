@@ -16,7 +16,6 @@ describe('Account', function() {
   })
 
   describe('double entry BookKeeping', () => {
-
     describe('contributions', () => {
       it('registers the expense on the source account', () => {
         account.createContribution(time0, invalue, source)
@@ -32,7 +31,42 @@ describe('Account', function() {
     })
   })
 
+  describe('timeIndices', () => {
+    var creationIndexes = [0, 1, 2, 3, 4, 5]
+    var maxTime = 4
+    beforeEach(() => {
+      _.forEach(creationIndexes, (index) => {
+        account.createContribution(index, invalue, source)
+      })
+    })
+
+    it('returns an array of indices not larger than the specified parameter', () => {
+      var timeIndices = account.timeIndices(maxTime)
+      expect(parseInt(timeIndices[timeIndices.length - 1])).toEqual(maxTime)
+    })
+
+    it('returns an array of all time indices if not given a query parameter', () => {
+      var timeIndices = account.timeIndices()
+      expect(parseInt(timeIndices[timeIndices.length - 1]))
+        .toEqual(creationIndexes[creationIndexes.length -1])
+    })
+  })
+
   describe('getValue', () => {
+    describe('when given a time query parameter', () => {
+      var creationIndexes = [0, 1, 2, 3, 4, 5]
+      var maxTime = 4
+      beforeEach(() => {
+        _.forEach(creationIndexes, (index) => {
+          account.createContribution(index, invalue, source)
+        })
+      })
+
+      it('should calculate the value to the queryParameter', () => {
+        expect(account.getValue(maxTime)).toEqual(invalue * 5)
+      })
+    })
+
     describe('with cashflows inward', () => {
       beforeEach(() => {
         account.createContribution(time0, invalue, source)
@@ -42,8 +76,7 @@ describe('Account', function() {
         expect(account.getValue()).toEqual(invalue)
       })
 
-
-            describe('with cashflows outward', () => {
+      describe('with cashflows outward', () => {
         beforeEach(() => {
           account.createExpense(time0, outvalue, source)
         })
@@ -63,7 +96,7 @@ describe('Account', function() {
           })
         })
 
-        describe ('for multiple years', () => {
+        describe('for multiple years', () => {
           var otherOutValue = 25
           beforeEach(() => {
             account.createContribution(time1, invalue, source)
