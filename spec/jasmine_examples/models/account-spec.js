@@ -18,14 +18,14 @@ describe('Account', function() {
   describe('double entry BookKeeping', () => {
     describe('contributions', () => {
       it('registers the expense on the source account', () => {
-        account.createContribution(time0, invalue, source)
+        account.createInFlow(time0, invalue, source)
         expect(source.getValue()).toEqual( - invalue)
       })
     })
 
     describe('expenses', () => {
       it('when creating an expense, it registers the inflow on the target account', () => {
-        account.createExpense(time0, invalue, source)
+        account.createOutflow(time0, invalue, source)
         expect(source.getValue()).toEqual(invalue)
       })
     })
@@ -36,7 +36,7 @@ describe('Account', function() {
     var maxTime = 4
     beforeEach(() => {
       _.forEach(creationIndexes, (index) => {
-        account.createContribution(index, invalue, source)
+        account.createInFlow(index, invalue, source)
       })
     })
 
@@ -58,7 +58,7 @@ describe('Account', function() {
       var maxTime = 4
       beforeEach(() => {
         _.forEach(creationIndexes, (index) => {
-          account.createContribution(index, invalue, source)
+          account.createInFlow(index, invalue, source)
         })
       })
 
@@ -69,7 +69,7 @@ describe('Account', function() {
 
     describe('with cashflows inward', () => {
       beforeEach(() => {
-        account.createContribution(time0, invalue, source)
+        account.createInFlow(time0, invalue, source)
       })
 
       it('should return the value of the inflow', () => {
@@ -78,7 +78,7 @@ describe('Account', function() {
 
       describe('with cashflows outward', () => {
         beforeEach(() => {
-          account.createExpense(time0, outvalue, source)
+          account.createOutflow(time0, outvalue, source)
         })
 
         it('should return the value of the inflow plus the expense', () => {
@@ -99,8 +99,8 @@ describe('Account', function() {
         describe('for multiple years', () => {
           var otherOutValue = 25
           beforeEach(() => {
-            account.createContribution(time1, invalue, source)
-            account.createExpense(time0, otherOutValue, source)
+            account.createInFlow(time1, invalue, source)
+            account.createOutflow(time0, otherOutValue, source)
           })
 
           it('should sum the inflows and expenses over multiple years', () => {
@@ -115,7 +115,7 @@ describe('Account', function() {
 
   describe('calculateInterest', () => {
     beforeEach(() => {
-      account.createContribution(0, invalue, source)
+      account.createInFlow(0, invalue, source)
     })
 
     it('calculates interest', () => {

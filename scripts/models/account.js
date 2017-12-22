@@ -28,8 +28,16 @@ Account.prototype.getValue = function(maxTime) {
   }, 0)
 }
 
+Account.prototype.getInFlowValueAtTime = function(time) {
+  var flows = this.contributions[time]
+
+  return _.reduce(flows, (memo, flow) => {
+    return memo + flow.getValue()
+  }, 0) || 0
+}
+
 //private
-Account.prototype.registerContribution = function(cashFlow) {
+Account.prototype.registerInFlow = function(cashFlow) {
   var time = cashFlow.time
   this.contributions[time] = this.contributions[time] || []
   this.contributions[time].push(cashFlow)
@@ -42,16 +50,17 @@ Account.prototype.registerOutFlow = function(cashFlow) {
   this.expenses[time].push(cashFlow)
 }
 
-Account.prototype.createContribution = function(timeIndex, value, fromAccount) {
+Account.prototype.createInFlow = function(timeIndex, value, fromAccount) {
   var flow = new CashFlow(timeIndex, value, this, fromAccount)
-  this.registerContribution(flow)
+  this.registerInFlow(flow)
+
   fromAccount.registerOutFlow(flow)
 }
 
-Account.prototype.createExpense = function(timeIndex, value, toAccount) {
+Account.prototype.createOutflow = function(timeIndex, value, toAccount) {
   var flow = new CashFlow(timeIndex, value, toAccount, this)
   this.registerOutFlow(flow)
-  toAccount.registerContribution(flow)
+  toAccount.registerInFlow(flow)
 }
 
 Account.prototype.createInterestFlow = function(timeIndex, value) {

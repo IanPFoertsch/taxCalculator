@@ -14,7 +14,7 @@ Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount
   var period = endYear - startYear
   //lodash range is non-inclusive of the "end" parameter
   _.forEach(_.range(0, period + 1), (timeIndex) => {
-    targetAccount.createContribution(timeIndex, value, sourceAccount)
+    targetAccount.createInFlow(timeIndex, value, sourceAccount)
   })
 }
 
@@ -25,9 +25,38 @@ Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
+Person.prototype.createTraditionalIRAContribution = function(value, startYear, endYear) {
+  var sourceAccount = this.getAccount(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getAccount(Constants.TRADITIONAL_IRA)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
+Person.prototype.createRothIRAContribution = function(value, startYear, endYear) {
+  var sourceAccount = this.getAccount(Constants.POST_TAX_INCOME)
+  var targetAccount = this.getAccount(Constants.ROTH_IRA)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
+Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYear) {
+  //Need the "Non-Accumulating Account" concept
+  //The WAGES_AND_COMPENSATION account is non-accumulating. That is - there is
+  //no accumulating value. 
+}
+
+//create inflows to different accounts
+//create flows from those accounts to different taxable categories
+//create deductable flows
+//create tax flows outwards
+//create create post tax contribution flows
+//create residual spending flows
+
+
 Person.prototype.createTaxFlows = function() {
   //here - for every year we have a wages and compensation value,
   //create the following flows:
+
   // medicare
   // social security
   // federal income tax
@@ -37,16 +66,11 @@ Person.prototype.createTaxFlows = function() {
   // to a "net post tax income account"
 }
 
-Person.prototype.getNetIncome = function(year) {
-  return this.getAccount(Constants.NET_INCOME).getValueAtYear(year)
-}
-
-
-Person.prototype.getValue = function() {
+Person.prototype.getValue = function(timeIndex) {
   return _.reduce(Object.keys(this.accounts), (value, accountKey) => {
     var account = this.getAccount(accountKey)
 
-    return value + account.getValue()
+    return value + account.getValue(timeIndex)
   }, 0)
 }
 
