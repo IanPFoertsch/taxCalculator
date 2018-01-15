@@ -26,6 +26,8 @@ module.exports = {
     "no-unused-vars": [
       "warn"
     ],
+    "jasmine/no-focused-tests": 0,
+    "jasmine/new-line-before-expect": 0
   },
   globals: {
     "_": true,
