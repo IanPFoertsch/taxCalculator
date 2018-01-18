@@ -57,7 +57,7 @@ Account.prototype.createInFlow = function(timeIndex, value, fromAccount) {
   fromAccount.registerOutFlow(flow)
 }
 
-Account.prototype.createOutflow = function(timeIndex, value, toAccount) {
+Account.prototype.createExpense = function(timeIndex, value, toAccount) {
   var flow = new CashFlow(timeIndex, value, toAccount, this)
   this.registerOutFlow(flow)
   toAccount.registerInFlow(flow)

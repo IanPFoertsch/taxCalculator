@@ -25,7 +25,7 @@ describe('Account', function() {
 
     describe('expenses', () => {
       it('when creating an expense, it registers the inflow on the target account', () => {
-        account.createOutflow(time0, invalue, source)
+        account.createExpense(time0, invalue, source)
         expect(source.getValue()).toEqual(invalue)
       })
     })
@@ -78,7 +78,7 @@ describe('Account', function() {
 
       describe('with cashflows outward', () => {
         beforeEach(() => {
-          account.createOutflow(time0, outvalue, source)
+          account.createExpense(time0, outvalue, source)
         })
 
         it('should return the value of the inflow plus the expense', () => {
@@ -100,7 +100,7 @@ describe('Account', function() {
           var otherOutValue = 25
           beforeEach(() => {
             account.createInFlow(time1, invalue, source)
-            account.createOutflow(time0, otherOutValue, source)
+            account.createExpense(time0, otherOutValue, source)
           })
 
           it('should sum the inflows and expenses over multiple years', () => {
@@ -110,8 +110,6 @@ describe('Account', function() {
       })
     })
   })
-
-
 
   describe('calculateInterest', () => {
     beforeEach(() => {
@@ -140,6 +138,38 @@ describe('Account', function() {
 
       account.calculateInterest(10)
       expect(account.getValue()).toEqual(originalValue)
+    })
+  })
+
+  describe('getInflowValueAtTime', () => {
+    var inValue = 100
+    var time = 0
+    var repetitions = [0,1,2]
+
+    it('calculates the value of the inflows for a given time', () => {
+      account.createInFlow(time, inValue, source)
+      expect(account.getInFlowValueAtTime(time)).toEqual(inValue)
+    })
+
+    describe('with multiple inflows at the requested time', () => {
+      it('calculates the value of all of the inflows for a given time', () => {
+        _.forEach(repetitions, () => {
+          account.createInFlow(time, inValue, source)
+        })
+
+        expect(account.getInFlowValueAtTime(time)).toEqual(inValue * repetitions.length)
+      })
+    })
+
+    describe('with inflows in different time periods', () => {
+      it('calculates the value the inflows only for the queried time', () => {
+        _.forEach(repetitions, (repetition) => {
+          account.createInFlow(repetition, inValue, source)
+        })
+        account.createInFlow(time, inValue, source)
+
+        expect(account.getInFlowValueAtTime(time)).toEqual(inValue * 2)
+      })
     })
   })
 })

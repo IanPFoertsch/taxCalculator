@@ -1,7 +1,9 @@
 var Account = Models.Account
+var TaxCategory = Models.TaxCategory
 
 function Person() {
   this.accounts = {}
+  this.taxCategories = {}
   this.thirdPartyAccounts = {}
   this.employerAccount = this.getThirdPartyAccount('Employer')
 }
@@ -42,7 +44,7 @@ Person.prototype.createRothIRAContribution = function(value, startYear, endYear)
 Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYear) {
   //Need the "Non-Accumulating Account" concept
   //The WAGES_AND_COMPENSATION account is non-accumulating. That is - there is
-  //no accumulating value. 
+  //no accumulating value.
 }
 
 //create inflows to different accounts
@@ -74,7 +76,6 @@ Person.prototype.getValue = function(timeIndex) {
   }, 0)
 }
 
-
 Person.prototype.getAccount = function(accountName) {
   this.accounts[accountName] = this.accounts[accountName] || new Account(accountName)
   return this.accounts[accountName]
@@ -85,9 +86,9 @@ Person.prototype.getThirdPartyAccount = function(accountName) {
   return this.thirdPartyAccounts[accountName]
 }
 
-// Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
-//
-// }
-
+Person.prototype.getTaxCategory = function(categoryName) {
+  this.taxCategories[categoryName] = this.taxCategories[categoryName] || new TaxCategory(categoryName)
+  return this.taxCategories[categoryName]
+}
 
 Models.Person = Person

@@ -57,7 +57,7 @@ describe('FutureCalculator', function() {
     //     'Retirement Spending': 100
     //   };
     //
-    //   fit('should return an array of length equal to the working and retirement periods', () => {
+    //   it('should return an array of length equal to the working and retirement periods', () => {
     //     var result = FutureCalculator.projectAccounts(person);
     //     expect(result.length).toEqual(11);
     //   });
