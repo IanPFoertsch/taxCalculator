@@ -1,11 +1,13 @@
 var Account = Models.Account
+var NonAccumulatingAccount = Models.NonAccumulatingAccount
+var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
 
-function Person() {
+function Person(age) {
+  this.age = age
   this.accounts = {}
   this.taxCategories = {}
   this.thirdPartyAccounts = {}
-  this.employerAccount = this.getThirdPartyAccount('Employer')
 }
 //a person has accounts
 //a person has incomes and expenses
@@ -16,27 +18,28 @@ Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount
   var period = endYear - startYear
   //lodash range is non-inclusive of the "end" parameter
   _.forEach(_.range(0, period + 1), (timeIndex) => {
+
     targetAccount.createInFlow(timeIndex, value, sourceAccount)
   })
 }
 
 Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
   var sourceAccount = this.getThirdPartyAccount(Constants.EMPLOYER)
-  var targetAccount = this.getAccount(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
 
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
 Person.prototype.createTraditionalIRAContribution = function(value, startYear, endYear) {
-  var sourceAccount = this.getAccount(Constants.WAGES_AND_COMPENSATION)
-  var targetAccount = this.getAccount(Constants.TRADITIONAL_IRA)
+  var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getAccumulatingAccount(Constants.TRADITIONAL_IRA)
 
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
 Person.prototype.createRothIRAContribution = function(value, startYear, endYear) {
-  var sourceAccount = this.getAccount(Constants.POST_TAX_INCOME)
-  var targetAccount = this.getAccount(Constants.ROTH_IRA)
+  var sourceAccount = this.getTaxCategory(Constants.POST_TAX_INCOME)
+  var targetAccount = this.getAccumulatingAccount(Constants.ROTH_IRA)
 
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
@@ -68,21 +71,25 @@ Person.prototype.createTaxFlows = function() {
   // to a "net post tax income account"
 }
 
+Person.prototype.getAccountValueData = function() {
+  //from current age to end of time, format the account value data
+  //as 'Account Label': [{x: timeIndex, y: accountValue}, {...}, {...}]
+}
+
 Person.prototype.getValue = function(timeIndex) {
   return _.reduce(Object.keys(this.accounts), (value, accountKey) => {
-    var account = this.getAccount(accountKey)
-
-    return value + account.getValue(timeIndex)
+    var account = this.getAccumulatingAccount(accountKey)
+    return value + account.getValueAtTime(timeIndex)
   }, 0)
 }
 
-Person.prototype.getAccount = function(accountName) {
-  this.accounts[accountName] = this.accounts[accountName] || new Account(accountName)
+Person.prototype.getAccumulatingAccount = function(accountName) {
+  this.accounts[accountName] = this.accounts[accountName] || new AccumulatingAccount(accountName)
   return this.accounts[accountName]
 }
 
 Person.prototype.getThirdPartyAccount = function(accountName) {
-  this.thirdPartyAccounts[accountName] = this.thirdPartyAccounts[accountName] || new Account(accountName)
+  this.thirdPartyAccounts[accountName] = this.thirdPartyAccounts[accountName] || new NonAccumulatingAccount(accountName)
   return this.thirdPartyAccounts[accountName]
 }
 

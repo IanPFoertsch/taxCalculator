@@ -3,10 +3,11 @@ var Account = Models.Account
 function NonAccumulatingAccount(label) {
   Account.call(this, label)
 }
+
 NonAccumulatingAccount.prototype = Object.create(Account.prototype)
-NonAccumulatingAccount.prototype.getValue = function() {
-  //hardcode the value to 0
-  return 0.0
+
+NonAccumulatingAccount.prototype.getValueAtTime = function(time) {
+  return this.getFlowBalanceAtTime(time)
 }
 
 function TaxCategory(label) {

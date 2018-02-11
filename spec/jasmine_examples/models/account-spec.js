@@ -19,14 +19,14 @@ describe('Account', function() {
     describe('contributions', () => {
       it('registers the expense on the source account', () => {
         account.createInFlow(time0, invalue, source)
-        expect(source.getValue()).toEqual( - invalue)
+        expect(source.getFlowBalanceAtTime(time0)).toEqual( - invalue)
       })
     })
 
     describe('expenses', () => {
       it('when creating an expense, it registers the inflow on the target account', () => {
         account.createExpense(time0, invalue, source)
-        expect(source.getValue()).toEqual(invalue)
+        expect(source.getFlowBalanceAtTime(time0)).toEqual(invalue)
       })
     })
   })
@@ -52,18 +52,19 @@ describe('Account', function() {
     })
   })
 
-  describe('getValue', () => {
-    describe('when given a time query parameter', () => {
+  describe('getFlowBalanceAtTime', () => {
+    describe('with flows in multiple time periods', () => {
       var creationIndexes = [0, 1, 2, 3, 4, 5]
       var maxTime = 4
+
       beforeEach(() => {
         _.forEach(creationIndexes, (index) => {
           account.createInFlow(index, invalue, source)
         })
       })
 
-      it('should calculate the value to the queryParameter', () => {
-        expect(account.getValue(maxTime)).toEqual(invalue * 5)
+      it('should only calculate the flow balance for a single time period', () => {
+        expect(account.getFlowBalanceAtTime(maxTime)).toEqual(invalue)
       })
     })
 
@@ -73,7 +74,7 @@ describe('Account', function() {
       })
 
       it('should return the value of the inflow', () => {
-        expect(account.getValue()).toEqual(invalue)
+        expect(account.getFlowBalanceAtTime(time0)).toEqual(invalue)
       })
 
       describe('with cashflows outward', () => {
@@ -82,62 +83,9 @@ describe('Account', function() {
         })
 
         it('should return the value of the inflow plus the expense', () => {
-          expect(account.getValue()).toEqual(invalue - outvalue)
-        })
-
-        describe('with an interest flow', () => {
-          var interestValue = 10
-          beforeEach(() => {
-            account.createInterestFlow(0, interestValue)
-          })
-
-          it('should return the value of the inflow, expense and interest flow', () => {
-            expect(account.getValue()).toEqual(invalue - outvalue + interestValue)
-          })
-        })
-
-        describe('for multiple years', () => {
-          var otherOutValue = 25
-          beforeEach(() => {
-            account.createInFlow(time1, invalue, source)
-            account.createExpense(time0, otherOutValue, source)
-          })
-
-          it('should sum the inflows and expenses over multiple years', () => {
-            expect(account.getValue()).toEqual((invalue * 2) - (outvalue + otherOutValue))
-          })
+          expect(account.getFlowBalanceAtTime(time0)).toEqual(invalue - outvalue)
         })
       })
-    })
-  })
-
-  describe('calculateInterest', () => {
-    beforeEach(() => {
-      account.createInFlow(0, invalue, source)
-    })
-
-    it('calculates interest', () => {
-      account.calculateInterest(1)
-      expect(account.getValue()).toEqual(invalue + (invalue * Constants.DEFAULT_GROWTH_RATE))
-    })
-
-    it('calculates interest on the interest', () => {
-      var yearOneValue = invalue + (invalue * Constants.DEFAULT_GROWTH_RATE)
-      var secondYearValue = yearOneValue + (yearOneValue * Constants.DEFAULT_GROWTH_RATE)
-      account.calculateInterest(2)
-      expect(account.getValue()).toEqual(secondYearValue)
-    })
-
-    it('iterates to the specified year', () => {
-      account.calculateInterest(10)
-    })
-
-    it('should be idempotent', () => {
-      account.calculateInterest(10)
-      var originalValue = account.getValue()
-
-      account.calculateInterest(10)
-      expect(account.getValue()).toEqual(originalValue)
     })
   })
 

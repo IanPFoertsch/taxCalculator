@@ -1,31 +1,33 @@
 var CashFlow = Models.CashFlow
-
+//Abstract SuperClass
 function Account(label) {
   this.label = label
   this.contributions = {}
   this.expenses = {}
-  this.interestFlows = {}
 }
 
 Account.prototype.flows = function() {
-  return [this.contributions, this.expenses, this.interestFlows]
+  return this.getPositiveFlowList().concat(this.getNegativeFlowList())
 }
 
-Account.prototype.getValue = function(maxTime) {
-  //TODO: if we create a table of values repeatedly using this maxTime
-  //parameter, we're going to be repeating the same calculations many times
-  //over - amend this to include memoization
-  return _.reduce(this.timeIndices(maxTime), (value, index) =>  {
-    var contributions = this.contributions[index]
-    var expenses = this.expenses[index]
-    var interestFlows = this.interestFlows[index]
-
-    var contribution = this.sumFlow(contributions)
-    var outValue = this.sumFlow(expenses)
-    var interestValue = this.sumFlow(interestFlows)
-
-    return value + (contribution - outValue) + interestValue
+Account.prototype.getFlowBalanceAtTime = function(time) {
+  var positiveValue = _.reduce(this.getPositiveFlowList(), (value, flowList) => {
+    return value + this.sumFlow(flowList[time])
   }, 0)
+
+  var negativeValue = _.reduce(this.getNegativeFlowList(), (value, flowList) => {
+    return this.sumFlow(flowList[time])
+  }, 0)
+
+  return positiveValue - negativeValue
+}
+
+Account.prototype.getPositiveFlowList = function() {
+  return [this.contributions]
+}
+
+Account.prototype.getNegativeFlowList = function() {
+  return [this.expenses]
 }
 
 Account.prototype.getInFlowValueAtTime = function(time) {
@@ -51,9 +53,9 @@ Account.prototype.registerOutFlow = function(cashFlow) {
 }
 
 Account.prototype.createInFlow = function(timeIndex, value, fromAccount) {
-  var flow = new CashFlow(timeIndex, value, this, fromAccount)
-  this.registerInFlow(flow)
 
+  var flow = new CashFlow(timeIndex, value, fromAccount, this)
+  this.registerInFlow(flow)
   fromAccount.registerOutFlow(flow)
 }
 
@@ -64,6 +66,7 @@ Account.prototype.createExpense = function(timeIndex, value, toAccount) {
 }
 
 Account.prototype.createInterestFlow = function(timeIndex, value) {
+
   this.interestSource = this.interestSource || new Account('Interest')
   this.interestFlows[timeIndex] = this.interestFlows[timeIndex] || []
   this.interestFlows[timeIndex].push(new CashFlow(timeIndex, value, this, this.interestSource))
@@ -104,7 +107,7 @@ Account.prototype.calculateInterest = function(endTime) {
 Account.prototype.singlePeriodCompounding = function(timeStep) {
   //get the value for the account at the previous time step
   //use the value calculator to calculate the interest on it
-  var value = this.getValue(timeStep)
+  var value = this.getValueAtTime(timeStep)
   return value * Constants.DEFAULT_GROWTH_RATE
 }
 

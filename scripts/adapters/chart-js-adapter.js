@@ -1,8 +1,6 @@
 'use-strict';
 function ChartJSAdapter() {}
 
-
-
 var stackedLineConfig = function() {
   return {
     type: 'line',

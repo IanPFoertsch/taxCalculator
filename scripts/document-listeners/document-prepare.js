@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { label: 'Roth Contributions', type: 'number', default: 2000, output: Constants.ROTH_IRA },
     // { label: 'Brokerage Investments', type: 'number', default: 1000, output: Constants.BROKERAGE },
     { label: 'Years to Retirement', type: 'number', default: 20, output: 'Years to Retirement'},
+    { label: 'Age', type: 'number', default: 30, output: 'Age' },
     { label: 'Retirement Spending', type: 'number', default: 10000, output: 'Retirement Spending' },
     { label: 'Retirement Length', type: 'number', default: 30, output: 'Retirement Length' },
   ];
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return function(chart) {
         var person = personListener.getInput();
         var accountProjection = FutureCalculator.projectAccounts(person);
+
         var converted = ChartJSAdapter.lineChartConversion(accountProjection);
         this.update(converted);
       };
