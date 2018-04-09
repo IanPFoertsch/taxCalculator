@@ -1,51 +1,89 @@
 var CashFlow = Models.CashFlow
-
+//Abstract SuperClass
 function Account(label) {
   this.label = label
   this.contributions = {}
-  this.outflows = {}
-  this.interestFlows = {}
+  this.expenses = {}
 }
 
 Account.prototype.flows = function() {
-  return [this.contributions, this.outflows, this.interestFlows]
+  return this.getPositiveFlowList().concat(this.getNegativeFlowList())
 }
 
-Account.prototype.getValue = function() {
-  return _.reduce(this.timeIndices(), (value, index) =>  {
-    var contributions = this.contributions[index]
-    var outflows = this.outflows[index]
-    var interestFlows = this.interestFlows[index]
-
-    var contribution = this.sumFlow(contributions)
-    var outValue = this.sumFlow(outflows)
-    var interestValue = this.sumFlow(interestFlows)
-
-    return value + (contribution - outValue) + interestValue
+Account.prototype.getFlowBalanceAtTime = function(time) {
+  var positiveValue = _.reduce(this.getPositiveFlowList(), (value, flowList) => {
+    return value + this.sumFlow(flowList[time])
   }, 0)
+
+  var negativeValue = _.reduce(this.getNegativeFlowList(), (value, flowList) => {
+    return this.sumFlow(flowList[time])
+  }, 0)
+
+  return positiveValue - negativeValue
 }
 
-Account.prototype.createContribution = function(timeIndex, value, fromAccount) {
-  this.contributions[timeIndex] = this.contributions[timeIndex] || []
-  this.contributions[timeIndex].push(new CashFlow(timeIndex, value, this, fromAccount))
+Account.prototype.getPositiveFlowList = function() {
+  return [this.contributions]
 }
 
-Account.prototype.createOutflow = function(timeIndex, value, toAccount) {
-  this.outflows[timeIndex] = this.outflows[timeIndex] || []
-  this.outflows[timeIndex].push(new CashFlow(timeIndex, value, toAccount, this))
+Account.prototype.getNegativeFlowList = function() {
+  return [this.expenses]
+}
+
+Account.prototype.getInFlowValueAtTime = function(time) {
+  var flows = this.contributions[time]
+
+  return _.reduce(flows, (memo, flow) => {
+    return memo + flow.getValue()
+  }, 0) || 0
+}
+
+//private
+Account.prototype.registerInFlow = function(cashFlow) {
+  var time = cashFlow.time
+  this.contributions[time] = this.contributions[time] || []
+  this.contributions[time].push(cashFlow)
+}
+
+//private
+Account.prototype.registerOutFlow = function(cashFlow) {
+  var time = cashFlow.time
+  this.expenses[time] = this.expenses[time] || []
+  this.expenses[time].push(cashFlow)
+}
+
+Account.prototype.createInFlow = function(timeIndex, value, fromAccount) {
+
+  var flow = new CashFlow(timeIndex, value, fromAccount, this)
+  this.registerInFlow(flow)
+  fromAccount.registerOutFlow(flow)
+}
+
+Account.prototype.createExpense = function(timeIndex, value, toAccount) {
+  var flow = new CashFlow(timeIndex, value, toAccount, this)
+  this.registerOutFlow(flow)
+  toAccount.registerInFlow(flow)
 }
 
 Account.prototype.createInterestFlow = function(timeIndex, value) {
+
   this.interestSource = this.interestSource || new Account('Interest')
   this.interestFlows[timeIndex] = this.interestFlows[timeIndex] || []
   this.interestFlows[timeIndex].push(new CashFlow(timeIndex, value, this, this.interestSource))
 }
 
-Account.prototype.timeIndices = function() {
+Account.prototype.timeIndices = function(maxTime) {
   var indices = _.reduce(this.flows(), (memo, flow) => {
     return memo.concat(Object.keys(flow))
   }, [])
-  return Array.from(new Set(indices)).sort()
+  var sorted = Array.from(new Set(indices)).sort()
+  if (maxTime != undefined) {
+    return _.filter(sorted, (index) => {
+      return parseInt(index) <= maxTime
+    })
+  } else {
+    return sorted
+  }
 }
 
 Account.prototype.sumFlow = function(flows) {
@@ -69,7 +107,7 @@ Account.prototype.calculateInterest = function(endTime) {
 Account.prototype.singlePeriodCompounding = function(timeStep) {
   //get the value for the account at the previous time step
   //use the value calculator to calculate the interest on it
-  var value = this.getValue(timeStep)
+  var value = this.getValueAtTime(timeStep)
   return value * Constants.DEFAULT_GROWTH_RATE
 }
 

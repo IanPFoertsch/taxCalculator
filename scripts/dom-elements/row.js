@@ -23,7 +23,7 @@ function InputRowElement(config, parentIdentifier) {
   Row.call(this, config, parentIdentifier);
 }
 
-InputRowElement.protoype = Object.create(Row.prototype);
+InputRowElement.prototype = Object.create(Row.prototype);
 
 InputRowElement.prototype.prepare = function() {
   Row.prototype.prepare.call(this);
