@@ -30,8 +30,7 @@ Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount
   //TODO: Transition to es6 and start using default parameters
   var period = endYear - startYear
   //lodash range is non-inclusive of the "end" parameter
-  _.forEach(_.range(0, period + 1), (timeIndex) => {
-
+  _.forEach(_.range(startYear, endYear + 1), (timeIndex) => {
     targetAccount.createInFlow(timeIndex, value, sourceAccount)
   })
 }

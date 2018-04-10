@@ -13,6 +13,39 @@ describe('Person', function() {
     person = new Person()
   })
 
+  describe('timeIndices', () => {
+    var account
+
+    beforeEach(() => {
+      person.createEmploymentIncome(1000, 0, 10)
+      account = person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+    })
+
+    it('queries the accounts for their timeIndices', () => {
+      spyOn(account, 'timeIndices')
+      person.timeIndices()
+      expect(account.timeIndices).toHaveBeenCalled()
+    })
+
+    it('returns a list of time indexes from the longest account projection', () => {
+      var indexes = person.timeIndices()
+      expect(indexes).toEqual(account.timeIndices())
+    })
+
+    describe('with multiple account projection maximum times', () => {
+      beforeEach(() => {
+        person.createTraditionalIRAContribution(1000, 5, 17)
+      })
+
+      // it('includes indexes stretching from the minimum to the maximum', () => {
+      //   var indexes = person.timeIndices()
+      //   expect(indexes).toEqual(
+      //     ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+      //   )
+      // })
+    })
+  })
+
   var accountCreationAndMemoization = function(functionName, accountsIdentifier, clazz) {
     var accountType = 'SomeAccountType'
 
@@ -163,6 +196,26 @@ describe('Person', function() {
         var cashFlow = account.contributions[time][0]
         expect(cashFlow).toEqual(jasmine.any(CashFlow))
         expect(cashFlow.getValue()).toEqual(value)
+      })
+    })
+
+    describe('for years starting not at 0', () => {
+      it('should begin the flows at the specified start year', () => {
+        start = 10
+        end = 20
+        person.createFlows(
+          value,
+          start,
+          end,
+          person.getThirdPartyAccount(Constants.EMPLOYER),
+          person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+        )
+
+        var account = person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+        var keys = Object.keys(account.contributions)
+
+        expect(parseInt(keys[0])).toEqual(start)
+        expect(parseInt(keys[10])).toEqual(end)
       })
     })
 
