@@ -76,6 +76,11 @@ Account.prototype.timeIndices = function(maxTime) {
   var indices = _.reduce(this.flows(), (memo, flow) => {
     return memo.concat(Object.keys(flow))
   }, [])
+
+  indices = _.map(indices, (index) => {
+    return parseInt(index)
+  })
+
   var sorted = Array.from(new Set(indices)).sort()
   if (maxTime != undefined) {
     return _.filter(sorted, (index) => {

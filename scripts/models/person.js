@@ -1,4 +1,3 @@
-var Account = Models.Account
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
@@ -8,6 +7,20 @@ function Person(age) {
   this.accounts = {}
   this.taxCategories = {}
   this.thirdPartyAccounts = {}
+}
+
+Person.prototype.timeIndices = function() {
+  //get the timeindex values from all accounts
+  //take the array union, sort, and return
+  var categories = [this.accounts, this.taxCategories, this.thirdPartyAccounts]
+
+  var allAccounts = _.reduce(categories, (accumulator, category) => {
+    return accumulator.concat(Object.values(category))
+  }, [])
+  //TODO: This seems excessive to find the maximum time index...
+  return _.reduce(allAccounts, (accumulator, account) => {
+    return _.uniq(accumulator.concat(account.timeIndices()))
+  }, [])
 }
 //a person has accounts
 //a person has incomes and expenses

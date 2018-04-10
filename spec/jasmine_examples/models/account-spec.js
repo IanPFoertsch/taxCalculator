@@ -50,6 +50,13 @@ describe('Account', function() {
       expect(parseInt(timeIndices[timeIndices.length - 1]))
         .toEqual(creationIndexes[creationIndexes.length -1])
     })
+
+    it('returns an array of int values', () => {
+      var timeIndices = account.timeIndices()
+      _.map(timeIndices, (index) => {
+        expect(index).toEqual(jasmine.any(Number))
+      })
+    })
   })
 
   describe('getFlowBalanceAtTime', () => {
