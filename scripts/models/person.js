@@ -19,13 +19,10 @@ Person.prototype.timeIndices = function() {
   }, [])
   //TODO: This seems excessive to find the maximum time index...
   return _.reduce(allAccounts, (accumulator, account) => {
-    return _.uniq(accumulator.concat(account.timeIndices()))
+    return _.uniq(accumulator.concat(account.timeIndices())).sort(( function(a,b) { return a - b } ))
   }, [])
 }
-//a person has accounts
-//a person has incomes and expenses
 
-//a person has taxable and non-taxable income
 Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount, targetAccount) {
   //TODO: Transition to es6 and start using default parameters
   var period = endYear - startYear

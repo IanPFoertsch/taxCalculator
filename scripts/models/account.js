@@ -81,7 +81,7 @@ Account.prototype.timeIndices = function(maxTime) {
     return parseInt(index)
   })
 
-  var sorted = Array.from(new Set(indices)).sort()
+  var sorted = Array.from(new Set(indices)).sort(( function(a,b) { return a - b } ))
   if (maxTime != undefined) {
     return _.filter(sorted, (index) => {
       return parseInt(index) <= maxTime
