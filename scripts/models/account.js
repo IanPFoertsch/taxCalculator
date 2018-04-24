@@ -6,6 +6,10 @@ function Account(label) {
   this.expenses = {}
 }
 
+Account.prototype.getLabel = function() {
+  return this.label
+}
+
 Account.prototype.flows = function() {
   return this.getPositiveFlowList().concat(this.getNegativeFlowList())
 }

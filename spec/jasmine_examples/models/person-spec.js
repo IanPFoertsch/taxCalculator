@@ -4,6 +4,7 @@ var CashFlow = Models.CashFlow
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
+var PersonDataAdapter = Adapters.PersonDataAdapter
 
 
 describe('Person', function() {
@@ -221,7 +222,6 @@ describe('Person', function() {
     })
 
     describe('getAccountValueData', () => {
-
       beforeEach(() => {
         person.createFlows(
           value,
@@ -234,6 +234,28 @@ describe('Person', function() {
 
       it('should output keys for each account label', () =>{
         //TODO: Remind me what this was for again?
+      })
+    })
+
+    describe('getNetWorthData', () => {
+      let timeIndices
+      let accounts
+      beforeEach(() => {
+        timeIndices = [0, 1, 2, 3]
+        accounts = {}
+        spyOn(PersonDataAdapter, 'lineChartData')
+        spyOn(person, 'timeIndices').and.returnValue(timeIndices)
+      })
+
+      it('queries the time indices', () => {
+        person.getNetWorthData()
+        expect(person.timeIndices).toHaveBeenCalledWith()
+      })
+
+      it('queries the PersonDataAdapter', () => {
+        person.accounts = accounts
+        person.getNetWorthData()
+        expect(PersonDataAdapter.lineChartData).toHaveBeenCalledWith(accounts, 3)
       })
     })
   })

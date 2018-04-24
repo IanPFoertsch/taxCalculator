@@ -1,6 +1,7 @@
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
+var PersonDataAdapter = Adapters.PersonDataAdapter
 
 function Person(age) {
   this.age = age
@@ -10,8 +11,6 @@ function Person(age) {
 }
 
 Person.prototype.timeIndices = function() {
-  //get the timeindex values from all accounts
-  //take the array union, sort, and return
   var categories = [this.accounts, this.taxCategories, this.thirdPartyAccounts]
 
   var allAccounts = _.reduce(categories, (accumulator, category) => {
@@ -105,6 +104,13 @@ Person.prototype.getThirdPartyAccount = function(accountName) {
 Person.prototype.getTaxCategory = function(categoryName) {
   this.taxCategories[categoryName] = this.taxCategories[categoryName] || new TaxCategory(categoryName)
   return this.taxCategories[categoryName]
+}
+
+Person.prototype.getNetWorthData = function() {
+  var timeIndices = this.timeIndices()
+  var maxTime = timeIndices[timeIndices.length - 1]
+
+  return PersonDataAdapter.lineChartData(this.accounts, maxTime)
 }
 
 Models.Person = Person

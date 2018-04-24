@@ -31,6 +31,7 @@ module.exports = {
   },
   globals: {
     "_": true,
+    "Adapters": true,
     "Calculator": true,
     "Constants": true,
     "Models": true

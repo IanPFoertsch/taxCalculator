@@ -11,7 +11,7 @@ describe('Account', function() {
   var time1 = 1
 
   beforeEach(() => {
-    account = new Account('Roth Ira')
+    account = new Account(Constants.ROTH_IRA)
     source = new Account('BookKeeping')
   })
 

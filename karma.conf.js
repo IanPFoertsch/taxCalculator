@@ -13,6 +13,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'bower_components/lodash/lodash.js',
+      'scripts/adapters/adapters.js',
       'scripts/adapters/*.js',
       'scripts/constants/*.js',
       'scripts/calculators/*.js',
