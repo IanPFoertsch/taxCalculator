@@ -11,7 +11,7 @@ describe('Account', function() {
   var time1 = 1
 
   beforeEach(() => {
-    account = new Account('Roth Ira')
+    account = new Account(Constants.ROTH_IRA)
     source = new Account('BookKeeping')
   })
 
@@ -49,6 +49,13 @@ describe('Account', function() {
       var timeIndices = account.timeIndices()
       expect(parseInt(timeIndices[timeIndices.length - 1]))
         .toEqual(creationIndexes[creationIndexes.length -1])
+    })
+
+    it('returns an array of int values', () => {
+      var timeIndices = account.timeIndices()
+      _.map(timeIndices, (index) => {
+        expect(index).toEqual(jasmine.any(Number))
+      })
     })
   })
 

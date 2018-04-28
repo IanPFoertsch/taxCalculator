@@ -6,6 +6,10 @@ function Account(label) {
   this.expenses = {}
 }
 
+Account.prototype.getLabel = function() {
+  return this.label
+}
+
 Account.prototype.flows = function() {
   return this.getPositiveFlowList().concat(this.getNegativeFlowList())
 }
@@ -76,7 +80,12 @@ Account.prototype.timeIndices = function(maxTime) {
   var indices = _.reduce(this.flows(), (memo, flow) => {
     return memo.concat(Object.keys(flow))
   }, [])
-  var sorted = Array.from(new Set(indices)).sort()
+
+  indices = _.map(indices, (index) => {
+    return parseInt(index)
+  })
+
+  var sorted = Array.from(new Set(indices)).sort(( function(a,b) { return a - b } ))
   if (maxTime != undefined) {
     return _.filter(sorted, (index) => {
       return parseInt(index) <= maxTime

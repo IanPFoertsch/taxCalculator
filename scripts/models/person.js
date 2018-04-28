@@ -1,7 +1,7 @@
-var Account = Models.Account
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
+var PersonDataAdapter = Adapters.PersonDataAdapter
 
 function Person(age) {
   this.age = age
@@ -9,16 +9,24 @@ function Person(age) {
   this.taxCategories = {}
   this.thirdPartyAccounts = {}
 }
-//a person has accounts
-//a person has incomes and expenses
 
-//a person has taxable and non-taxable income
+Person.prototype.timeIndices = function() {
+  var categories = [this.accounts, this.taxCategories, this.thirdPartyAccounts]
+
+  var allAccounts = _.reduce(categories, (accumulator, category) => {
+    return accumulator.concat(Object.values(category))
+  }, [])
+  //TODO: This seems excessive to find the maximum time index...
+  return _.reduce(allAccounts, (accumulator, account) => {
+    return _.uniq(accumulator.concat(account.timeIndices())).sort(( function(a,b) { return a - b } ))
+  }, [])
+}
+
 Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount, targetAccount) {
   //TODO: Transition to es6 and start using default parameters
   var period = endYear - startYear
   //lodash range is non-inclusive of the "end" parameter
-  _.forEach(_.range(0, period + 1), (timeIndex) => {
-
+  _.forEach(_.range(startYear, endYear + 1), (timeIndex) => {
     targetAccount.createInFlow(timeIndex, value, sourceAccount)
   })
 }
@@ -96,6 +104,13 @@ Person.prototype.getThirdPartyAccount = function(accountName) {
 Person.prototype.getTaxCategory = function(categoryName) {
   this.taxCategories[categoryName] = this.taxCategories[categoryName] || new TaxCategory(categoryName)
   return this.taxCategories[categoryName]
+}
+
+Person.prototype.getNetWorthData = function() {
+  var timeIndices = this.timeIndices()
+  var maxTime = timeIndices[timeIndices.length - 1]
+
+  return PersonDataAdapter.lineChartData(this.accounts, maxTime)
 }
 
 Models.Person = Person

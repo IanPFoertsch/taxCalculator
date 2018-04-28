@@ -4,6 +4,7 @@ var CashFlow = Models.CashFlow
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
+var PersonDataAdapter = Adapters.PersonDataAdapter
 
 
 describe('Person', function() {
@@ -11,6 +12,40 @@ describe('Person', function() {
 
   beforeEach(() => {
     person = new Person()
+  })
+
+  describe('timeIndices', () => {
+    var account
+
+    beforeEach(() => {
+      person.createEmploymentIncome(1000, 0, 10)
+      account = person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+    })
+
+    it('queries the accounts for their timeIndices', () => {
+      spyOn(account, 'timeIndices')
+      person.timeIndices()
+      expect(account.timeIndices).toHaveBeenCalled()
+    })
+
+    it('returns a list of time indexes from the longest account projection', () => {
+      var indexes = person.timeIndices()
+      expect(indexes).toEqual(account.timeIndices())
+    })
+
+    describe('with multiple account projection maximum times', () => {
+      beforeEach(() => {
+        person.createTraditionalIRAContribution(1000, 5, 17)
+      })
+
+      it('includes indexes stretching from the minimum to the maximum', () => {
+        var indexes = person.timeIndices()
+
+        expect(indexes).toEqual(
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        )
+      })
+    })
   })
 
   var accountCreationAndMemoization = function(functionName, accountsIdentifier, clazz) {
@@ -166,8 +201,27 @@ describe('Person', function() {
       })
     })
 
-    describe('getAccountValueData', () => {
+    describe('for years starting not at 0', () => {
+      it('should begin the flows at the specified start year', () => {
+        start = 10
+        end = 20
+        person.createFlows(
+          value,
+          start,
+          end,
+          person.getThirdPartyAccount(Constants.EMPLOYER),
+          person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+        )
 
+        var account = person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+        var keys = Object.keys(account.contributions)
+
+        expect(parseInt(keys[0])).toEqual(start)
+        expect(parseInt(keys[10])).toEqual(end)
+      })
+    })
+
+    describe('getAccountValueData', () => {
       beforeEach(() => {
         person.createFlows(
           value,
@@ -180,6 +234,28 @@ describe('Person', function() {
 
       it('should output keys for each account label', () =>{
         //TODO: Remind me what this was for again?
+      })
+    })
+
+    describe('getNetWorthData', () => {
+      let timeIndices
+      let accounts
+      beforeEach(() => {
+        timeIndices = [0, 1, 2, 3]
+        accounts = {}
+        spyOn(PersonDataAdapter, 'lineChartData')
+        spyOn(person, 'timeIndices').and.returnValue(timeIndices)
+      })
+
+      it('queries the time indices', () => {
+        person.getNetWorthData()
+        expect(person.timeIndices).toHaveBeenCalledWith()
+      })
+
+      it('queries the PersonDataAdapter', () => {
+        person.accounts = accounts
+        person.getNetWorthData()
+        expect(PersonDataAdapter.lineChartData).toHaveBeenCalledWith(accounts, 3)
       })
     })
   })
