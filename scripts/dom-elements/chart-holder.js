@@ -72,7 +72,7 @@ LineCanvasHandler.prototype.update = function(dataSeries) {
       var newData = {
         label: label,
         data: dataSeries[label],
-        fill: '2',
+        fill: 'origin',
         backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16)
       };
       this.chart.data.datasets.push(newData);

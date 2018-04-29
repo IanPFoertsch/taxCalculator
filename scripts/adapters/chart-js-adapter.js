@@ -4,15 +4,17 @@ function ChartJSAdapter() {}
 var stackedLineConfig = function() {
   return {
     type: 'line',
-    data: { datasets: [{}] },
-    options: { scales: {
-      xAxes: [{
-        type: 'linear',
-        position: 'bottom'
-      }],
-      yAxes: [{
-        stacked: true
-      }] }
+    data: { datasets: []},
+    options: {
+      scales: {
+        xAxes: [{
+          type: 'linear',
+          position: 'bottom'
+        }],
+        yAxes: [{
+          stacked: true,
+        }]
+      }
     }
   };
 };
