@@ -43,28 +43,6 @@ ChartJSAdapter.chartConfig = function(type) {
   }
 };
 
-
-ChartJSAdapter.lineChartConversion = function(projection) {
-  var chartFormatted = {};
-
-  var keys = Object.keys(projection[0]);
-
-  projection.forEach((item, index) => {
-    keys.forEach((key) => {
-      chartFormatted[key] = chartFormatted[key] || [];
-
-      var singleValue = {
-        x: index,
-        y: item[key],
-      };
-
-      chartFormatted[key].push(singleValue);
-    });
-  });
-
-  return chartFormatted;
-};
-
 ChartJSAdapter.stackedBarChartConversion = function(projection) {
   var keys = Object.keys(projection[0]);
   var labels = _.map(_.range(projection.length), (i) => {

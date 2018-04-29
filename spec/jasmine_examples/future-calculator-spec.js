@@ -13,7 +13,7 @@ describe('FutureCalculator', function() {
       [Constants.ROTH_IRA]: rothContributions,
       [Constants.TRADITIONAL_IRA]: traditionalContributions,
       [Constants.BROKERAGE]: brokerageContributions,
-      'Gross Income': 50000
+      [Constants.WAGES_AND_COMPENSATION]: 50000
     };
 
     it('should return a projection for working period', () => {

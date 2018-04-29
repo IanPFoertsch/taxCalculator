@@ -57,11 +57,17 @@ LineCanvasHandler.prototype.update = function(dataSeries) {
   //TODO: break this out to have a "ChartAdapter" class to map
   //logic to specific input requirements for different chart types
   //or charting libraries.
-  var currentLabels = _.map(this.chart.data.datasets, (set) => {
-    return set.label;
-  });
-  var labels = Object.keys(dataSeries);
 
+  var currentLabels = _.reduce(this.chart.data.datasets, (memo, dataset) => {
+    //filter out chartJS's metadata dataset
+    if (dataset.label != undefined) {
+      memo.push(dataset.label)
+    }
+    return memo
+  }, [])
+
+
+  var labels = Object.keys(dataSeries);
   _.each(labels, (label) => {
     if (currentLabels.includes(label)) {
       var series = _.find(this.chart.data.datasets, (set) => {
@@ -76,6 +82,7 @@ LineCanvasHandler.prototype.update = function(dataSeries) {
         backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16)
       };
       this.chart.data.datasets.push(newData);
+      this.chart.data.labels.push(label)
     }
   });
 
