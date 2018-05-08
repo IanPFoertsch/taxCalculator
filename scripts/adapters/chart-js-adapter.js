@@ -42,33 +42,3 @@ ChartJSAdapter.chartConfig = function(type) {
     return stackedBarConfig();
   }
 };
-
-ChartJSAdapter.stackedBarChartConversion = function(projection) {
-  var keys = Object.keys(projection[0]);
-  var labels = _.map(_.range(projection.length), (i) => {
-    return 'Year ' + i;
-  });
-
-  var result = {
-    labels: labels,
-  };
-
-  var datasets = _.reduce(keys, (memo, key) => {
-    var data = _.reduce(projection, (memo, singlePeriod) => {
-      var value = singlePeriod[key];
-      memo.push(value);
-      return memo;
-    }, []);
-
-    memo.push({
-      label: key,
-      // backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
-      // stack: 'Stack 0',
-      data: data
-    });
-    return memo;
-  }, []);
-
-  result.datasets = datasets;
-  return result;
-};

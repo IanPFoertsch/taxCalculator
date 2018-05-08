@@ -96,25 +96,26 @@ function BarCanvasHandler(config, parentIdentifier) {
 BarCanvasHandler.prototype = Object.create(CanvasHandler.prototype);
 
 BarCanvasHandler.prototype.update = function(data) {
-  // see: https://stackoverflow.com/questions/37499623/chart-js-stacked-and-grouped-bar-chart
   // better yet see: https://jsfiddle.net/Lvj2qnrp/1/
-  var converted = ChartJSAdapter.stackedBarChartConversion(data);
+  // see: https://stackoverflow.com/questions/37499623/chart-js-stacked-and-grouped-bar-chart
+  //labels need to be the years
   var existingData = this.chart.config.data.datasets;
-  _.each(converted.datasets, (datum) => {
+  _.forOwn(data.data, (datum, label) => {
+
     var existing = _.find(existingData, (existingDatum) => {
-      return existingDatum.label === datum.label;
+      return existingDatum.label === label;
     });
     if (existing) {
-      existing.data = datum.data;
+      existing.data = datum;
     } else {
       this.chart.config.data.datasets.push({
-        label: datum.label,
+        label: label,
         backgroundColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
         stack: 'Stack 0',
-        data: datum.data
+        data: datum
       });
     }
   });
-  this.chart.config.data.labels = converted.labels;
+  this.chart.config.data.labels = data.labels;
   this.chart.update();
 };

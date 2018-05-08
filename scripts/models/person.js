@@ -113,4 +113,11 @@ Person.prototype.getNetWorthData = function() {
   return PersonDataAdapter.lineChartData(this.accounts, maxTime)
 }
 
+Person.prototype.getAccountFlowBalanceByTime = function () {
+  var timeIndices = this.timeIndices()
+  var maxTime = timeIndices[timeIndices.length - 1]
+
+  return PersonDataAdapter.flowBalanceByTimeData(this.accounts, maxTime)
+}
+
 Models.Person = Person

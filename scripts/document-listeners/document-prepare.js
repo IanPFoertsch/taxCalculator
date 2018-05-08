@@ -25,25 +25,21 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFunction: function(personListener) {
       return function(chart) {
         var person = personListener.buildPerson()
-        // var accountProjection = FutureCalculator.projectAccounts(person)
-
-        // var converted = ChartJSAdapter.lineChartConversion(accountProjection)
         this.update(person.getNetWorthData())
       }
     }(personListener)
   }, '.main')
 
-  // var cashFlowChart = new ChartHolder({
-  //   cssClasses: ['chart-holder'],
-  //   canvas: { type: 'bar'},
-  //   updateFunction: function(personListener) {
-  //     return function(chart) {
-  //       var person = personListener.buildPerson()
-  //       var cashFlows = FutureCalculator.projectCashFlows(person)
-  //       this.update(cashFlows)
-  //     }
-  //   }(personListener)
-  // }, '.main')
+  var cashFlowChart = new ChartHolder({
+    cssClasses: ['chart-holder'],
+    canvas: { type: 'bar'},
+    updateFunction: function(personListener) {
+      return function(chart) {
+        var person = personListener.buildPerson()
+        this.update(person.getAccountFlowBalanceByTime())
+      }
+    }(personListener)
+  }, '.main')
 
 
   var calculateProjection = function(personListener, charts) {
@@ -60,7 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var projectionButton = new Button({
     text: 'Project Income',
     onClick: function() {
-      _.each([netWorthChart], (chartHolder) => {
+
+      _.each([netWorthChart, cashFlowChart], (chartHolder) => {
         chartHolder.updateFunction()
       })
     }
@@ -71,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     projectionButton,
     inputTable,
     netWorthChart,
+    cashFlowChart
   ]
 
   _.each(prepareables, (prepareable) => {
@@ -79,7 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //TODO: this is a duplication of the update logic - remove me
   var updateables = [
-    netWorthChart
+    netWorthChart,
+    cashFlowChart
   ]
 
   _.each(updateables, (updateable) => {
