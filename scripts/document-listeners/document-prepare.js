@@ -1,89 +1,87 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   var inputRows = [
-    { label: 'Gross Income', type: 'number', default: 50000, output: 'Gross Income' },
-    { label: 'Traditional Contributions', type: 'number', default: 5000, output: Constants.TRADITIONAL_IRA },
-    { label: 'Roth Contributions', type: 'number', default: 2000, output: Constants.ROTH_IRA },
+    { label: Constants.WAGES_AND_COMPENSATION, type: 'number', default: 50000, output: Constants.WAGES_AND_COMPENSATION },
+    { label: Constants.TRADITIONAL_CONTRIBUTIONS, type: 'number', default: 5000, output: Constants.TRADITIONAL_IRA },
+    { label: Constants.ROTH_CONTRIBUTIONS, type: 'number', default: 2000, output: Constants.ROTH_IRA },
     // { label: 'Brokerage Investments', type: 'number', default: 1000, output: Constants.BROKERAGE },
-    { label: 'Years to Retirement', type: 'number', default: 20, output: 'Years to Retirement'},
+    { label: Constants.CAREER_LENGTH, type: 'number', default: 20, output: Constants.CAREER_LENGTH},
     { label: 'Age', type: 'number', default: 30, output: 'Age' },
     { label: 'Retirement Spending', type: 'number', default: 10000, output: 'Retirement Spending' },
     { label: 'Retirement Length', type: 'number', default: 30, output: 'Retirement Length' },
-  ];
+  ]
 
   var inputTable =  new InputTableElement({
     cssClasses: ['person-table'],
     titleRow: { title: 'Enter Your Financial Information' },
     rows: inputRows
-  }, '.left-bar');
+  }, '.left-bar')
 
-  var personListener = new PersonListener(inputRows);
+  var personListener = new PersonListener(inputRows)
 
   var netWorthChart = new ChartHolder({
     cssClasses: ['chart-holder'],
     canvas: { type: 'line'},
     updateFunction: function(personListener) {
       return function(chart) {
-        var person = personListener.getInput();
-        var accountProjection = FutureCalculator.projectAccounts(person);
-
-        var converted = ChartJSAdapter.lineChartConversion(accountProjection);
-        this.update(converted);
-      };
+        var person = personListener.buildPerson()
+        this.update(person.getNetWorthData())
+      }
     }(personListener)
-  }, '.main');
+  }, '.main')
 
   var cashFlowChart = new ChartHolder({
     cssClasses: ['chart-holder'],
     canvas: { type: 'bar'},
     updateFunction: function(personListener) {
       return function(chart) {
-        var person = personListener.getInput();
-        var cashFlows = FutureCalculator.projectCashFlows(person);
-        this.update(cashFlows);
-      };
+        var person = personListener.buildPerson()
+        this.update(person.getAccountFlowBalanceByTime())
+      }
     }(personListener)
-  }, '.main');
+  }, '.main')
 
 
   var calculateProjection = function(personListener, charts) {
     return () => {
-      var person = personListener.getInput();
-      var accountProjection = FutureCalculator.projectAccounts(person);
+      var person = personListener.buildPerson()
+      var accountProjection = person.getNetWorthData()
       _.each(charts, (chart) => {
-        chart.update(accountProjection);
-      });
-    };
-  };
+        chart.update(accountProjection)
+      })
+    }
+  }
 
 
   var projectionButton = new Button({
     text: 'Project Income',
     onClick: function() {
+
       _.each([netWorthChart, cashFlowChart], (chartHolder) => {
-        chartHolder.updateFunction();
-      });
+        chartHolder.updateFunction()
+      })
     }
-  }, '.main');
+  }, '.main')
 
   //Prepare and populate the DOM
   var prepareables = [
     projectionButton,
     inputTable,
     netWorthChart,
-    cashFlowChart,
-  ];
+    cashFlowChart
+  ]
 
   _.each(prepareables, (prepareable) => {
-    prepareable.prepare();
-  });
+    prepareable.prepare()
+  })
 
   //TODO: this is a duplication of the update logic - remove me
   var updateables = [
-    netWorthChart, cashFlowChart
-  ];
+    netWorthChart,
+    cashFlowChart
+  ]
 
   _.each(updateables, (updateable) => {
-    updateable.updateFunction();
-  });
-});
+    updateable.updateFunction()
+  })
+})

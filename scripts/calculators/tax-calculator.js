@@ -2,7 +2,7 @@
 function TaxCalculator() {}
 
 TaxCalculator.calculateTaxes = function(personObject) {
-  let grossIncome = personObject['Gross Income'] || 0;
+  let grossIncome = personObject[Constants.WAGES_AND_COMPENSATION] || 0;
   let preTaxContributions = personObject['Traditional IRA'] || 0;
   let rothContributions = personObject['Roth IRA'] || 0;
   let incomeLessDeductions = this.lessDeductions(grossIncome, preTaxContributions);
