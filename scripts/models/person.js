@@ -2,16 +2,23 @@ var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
 var PersonDataAdapter = Adapters.PersonDataAdapter
+var TaxCalculator = Calculator.TaxCalculator
 
 function Person(age) {
   this.age = age
   this.accounts = {}
   this.taxCategories = {}
   this.thirdPartyAccounts = {}
+  this.expenses = {}
 }
 
 Person.prototype.timeIndices = function() {
-  var categories = [this.accounts, this.taxCategories, this.thirdPartyAccounts]
+  var categories = [
+    this.accounts,
+    this.taxCategories,
+    this.thirdPartyAccounts,
+    this.expenses
+  ]
 
   var allAccounts = _.reduce(categories, (accumulator, category) => {
     return accumulator.concat(Object.values(category))
@@ -38,6 +45,24 @@ Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
+Person.prototype.createFederalInsuranceContributions = function() {
+  var indexes = this.timeIndices()
+  var wages = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+
+  _.forEach(indexes, (timeIndex) => {
+    var income = wages.getValueAtTime(timeIndex)
+    var medicareWithholding = TaxCalculator.medicareWithholding(income)
+
+    this.createMedicareContributions(medicareWithholding, timeIndex, timeIndex)
+  })
+}
+
+Person.prototype.createMedicareContributions = function(value, startYear, endYear) {
+  var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getExpense(Constants.MEDICARE)
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
 Person.prototype.createTraditionalIRAContribution = function(value, startYear, endYear) {
   var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   var targetAccount = this.getAccumulatingAccount(Constants.TRADITIONAL_IRA)
@@ -50,33 +75,6 @@ Person.prototype.createRothIRAContribution = function(value, startYear, endYear)
   var targetAccount = this.getAccumulatingAccount(Constants.ROTH_IRA)
 
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
-}
-
-Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYear) {
-  //Need the "Non-Accumulating Account" concept
-  //The WAGES_AND_COMPENSATION account is non-accumulating. That is - there is
-  //no accumulating value.
-}
-
-//create inflows to different accounts
-//create flows from those accounts to different taxable categories
-//create deductable flows
-//create tax flows outwards
-//create create post tax contribution flows
-//create residual spending flows
-
-
-Person.prototype.createTaxFlows = function() {
-  //here - for every year we have a wages and compensation value,
-  //create the following flows:
-
-  // medicare
-  // social security
-  // federal income tax
-  // state income tax
-  // whatever other taxes
-  // then a flow for the remainder from wages and Compensation
-  // to a "net post tax income account"
 }
 
 Person.prototype.getAccountValueData = function() {
@@ -94,6 +92,11 @@ Person.prototype.getValue = function(timeIndex) {
 Person.prototype.getAccumulatingAccount = function(accountName) {
   this.accounts[accountName] = this.accounts[accountName] || new AccumulatingAccount(accountName)
   return this.accounts[accountName]
+}
+
+Person.prototype.getExpense = function(accountName) {
+  this.expenses[accountName] = this.expenses[accountName] || new Expense(accountName)
+  return this.expenses[accountName]
 }
 
 Person.prototype.getThirdPartyAccount = function(accountName) {
@@ -116,8 +119,9 @@ Person.prototype.getNetWorthData = function() {
 Person.prototype.getAccountFlowBalanceByTime = function () {
   var timeIndices = this.timeIndices()
   var maxTime = timeIndices[timeIndices.length - 1]
+  var graphableAccounts = _.assign({}, this.accounts, this.expenses)
 
-  return PersonDataAdapter.flowBalanceByTimeData(this.accounts, maxTime)
+  return PersonDataAdapter.flowBalanceByTimeData(graphableAccounts, maxTime)
 }
 
 Models.Person = Person

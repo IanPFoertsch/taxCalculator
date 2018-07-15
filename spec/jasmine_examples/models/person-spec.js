@@ -1,11 +1,12 @@
 var Account = Models.Account
+var Expense = Models.Expense
 var Person = Models.Person
 var CashFlow = Models.CashFlow
 var NonAccumulatingAccount = Models.NonAccumulatingAccount
 var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
 var PersonDataAdapter = Adapters.PersonDataAdapter
-
+var TaxCalculator = Calculator.TaxCalculator
 
 describe('Person', function() {
   var person
@@ -25,7 +26,7 @@ describe('Person', function() {
     it('queries the accounts for their timeIndices', () => {
       spyOn(account, 'timeIndices')
       person.timeIndices()
-      expect(account.timeIndices).toHaveBeenCalled()
+      expect(account.timeIndices).toHaveBeenCalledWith()
     })
 
     it('returns a list of time indexes from the longest account projection', () => {
@@ -75,6 +76,10 @@ describe('Person', function() {
     accountCreationAndMemoization('getTaxCategory', 'taxCategories', TaxCategory)
   })
 
+  describe('getExpense', () => {
+    accountCreationAndMemoization('getExpense', 'expenses', Expense)
+  })
+
   describe('createFlows delegator methods', () => {
     var value = 10000
     var startYear = 0
@@ -100,16 +105,15 @@ describe('Person', function() {
         expect(
           person.createFlows
         ).toHaveBeenCalledWith(
-          10000,
-          0,
-          30,
+          value,
+          startYear,
+          endYear,
           jasmine.any(sourceClazz),
           jasmine.any(targetClazz)
         )
       })
 
       describe('find or create account method', () => {
-
         beforeEach(() => {
           spyOn(person, sourceMethod)
           spyOn(person, targetMethod)
@@ -121,6 +125,14 @@ describe('Person', function() {
           expect(
             person[sourceMethod]
           ).toHaveBeenCalledWith(sourceConstant)
+        })
+
+        it('should call the target account method with the expected constant', () => {
+          person[functionName](value, startYear, endYear)
+
+          expect(
+            person[targetMethod]
+          ).toHaveBeenCalledWith(targetConstant)
         })
       })
     }
@@ -160,6 +172,39 @@ describe('Person', function() {
         Constants.ROTH_IRA
       )
     })
+
+    describe('createMedicareContributions', () => {
+      expectCreateFlowsDelegationFromMethod(
+        'createMedicareContributions',
+        TaxCategory,
+        'getTaxCategory',
+        Constants.WAGES_AND_COMPENSATION,
+        Expense,
+        'getExpense',
+        Constants.MEDICARE
+      )
+    })
+  })
+
+  describe('createFederalInsuranceContributions', () => {
+    var income = 100000
+    var maxTime = 10
+    var withholding = 5000
+
+    beforeEach(()=> {
+      person.createEmploymentIncome(income, 0, maxTime)
+      spyOn(TaxCalculator, 'medicareWithholding').and.returnValue(withholding)
+    })
+
+    it('uses the TaxCalculator to calculate the medicare witholding', () => {
+      person.createFederalInsuranceContributions()
+      expect(TaxCalculator.medicareWithholding).toHaveBeenCalledWith(income)
+      expect(TaxCalculator.medicareWithholding).toHaveBeenCalledTimes(maxTime + 1)
+    })
+
+    it('creates a medicare flow for each year of employment', () => {
+
+    })
   })
 
   describe('createFlows', () => {
@@ -167,7 +212,7 @@ describe('Person', function() {
     var end
     var value = 100
 
-    it('should register an flow from the source to the target', () => {
+    it('should register a flow from the source to the target', () => {
       end = 0
       person.createFlows(
         value,
@@ -220,43 +265,44 @@ describe('Person', function() {
         expect(parseInt(keys[10])).toEqual(end)
       })
     })
+  })
 
-    describe('getAccountValueData', () => {
-      beforeEach(() => {
-        person.createFlows(
-          value,
-          start,
-          end,
-          person.getThirdPartyAccount(Constants.EMPLOYER),
-          person.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
-        )
-      })
-
-      it('should output keys for each account label', () =>{
-        //TODO: Remind me what this was for again?
-      })
+  describe('getAccountFlowBalanceByTime', () => {
+    var value = 10000
+    var start = 0
+    var end = 10
+    beforeEach(() => {
+      person.createEmploymentIncome(value, start, end)
+      person.createFederalInsuranceContributions()
     })
 
-    describe('getNetWorthData', () => {
-      let timeIndices
-      let accounts
-      beforeEach(() => {
-        timeIndices = [0, 1, 2, 3]
-        accounts = {}
-        spyOn(PersonDataAdapter, 'lineChartData')
-        spyOn(person, 'timeIndices').and.returnValue(timeIndices)
-      })
+    it('queries the PersonDataAdapter for the flowBalanceByTimeData with the accumulating accounts and expenses', () =>{
+      spyOn(PersonDataAdapter, 'flowBalanceByTimeData')
+      person.getAccountFlowBalanceByTime()
+      var graphableAccounts = _.assign({}, person.accounts, person.expenses)
+      expect(PersonDataAdapter.flowBalanceByTimeData).toHaveBeenCalledWith(graphableAccounts, end)
+    })
+  })
 
-      it('queries the time indices', () => {
-        person.getNetWorthData()
-        expect(person.timeIndices).toHaveBeenCalledWith()
-      })
+  describe('getNetWorthData', () => {
+    let timeIndices
+    let accounts
+    beforeEach(() => {
+      timeIndices = [0, 1, 2, 3]
+      accounts = {}
+      spyOn(PersonDataAdapter, 'lineChartData')
+      spyOn(person, 'timeIndices').and.returnValue(timeIndices)
+    })
 
-      it('queries the PersonDataAdapter', () => {
-        person.accounts = accounts
-        person.getNetWorthData()
-        expect(PersonDataAdapter.lineChartData).toHaveBeenCalledWith(accounts, 3)
-      })
+    it('queries the time indices', () => {
+      person.getNetWorthData()
+      expect(person.timeIndices).toHaveBeenCalledWith()
+    })
+
+    it('queries the PersonDataAdapter', () => {
+      person.accounts = accounts
+      person.getNetWorthData()
+      expect(PersonDataAdapter.lineChartData).toHaveBeenCalledWith(accounts, 3)
     })
   })
 })

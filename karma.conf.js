@@ -19,6 +19,8 @@ module.exports = function(config) {
       'scripts/calculators/*.js',
       'scripts/models/models.js',
       'scripts/models/*.js',
+      'scripts/services/services.js',
+      'scripts/services/*.js',
       'spec/**/*.js'
     ],
 
