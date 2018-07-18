@@ -37,10 +37,8 @@ TaxCalculator.federalIncomeTax = function(taxableIncome) {
 
 TaxCalculator.socialSecurityWithholding = function(income) {
   //TODO: Assume for now that the user is not self-employed
-  var maxSSNTaxableEarnings = 118500;
-  var socialSecurityWithholdingRate = 0.062;
-  var applicableIncome = minimum(income, maxSSNTaxableEarnings);
-  return applicableIncome * socialSecurityWithholdingRate;
+  var applicableIncome = minimum(income, Constants.SOCIAL_SECURITY_MAXIMUM);
+  return applicableIncome * Constants.SOCIAL_SECURITY_RATE;
 };
 
 TaxCalculator.medicareWithholding = function(income) {

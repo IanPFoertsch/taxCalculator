@@ -189,21 +189,43 @@ describe('Person', function() {
   describe('createFederalInsuranceContributions', () => {
     var income = 100000
     var maxTime = 10
-    var withholding = 5000
+    var medicareWithholding = 5000
+    var socialSecurityWithholding = 6000
 
     beforeEach(()=> {
       person.createEmploymentIncome(income, 0, maxTime)
-      spyOn(TaxCalculator, 'medicareWithholding').and.returnValue(withholding)
+      spyOn(TaxCalculator, 'medicareWithholding').and.returnValue(medicareWithholding)
+      spyOn(TaxCalculator, 'socialSecurityWithholding').and.returnValue(socialSecurityWithholding)
     })
 
-    it('uses the TaxCalculator to calculate the medicare witholding', () => {
+    it('uses the TaxCalculator to calculate the medicare withholding', () => {
       person.createFederalInsuranceContributions()
       expect(TaxCalculator.medicareWithholding).toHaveBeenCalledWith(income)
       expect(TaxCalculator.medicareWithholding).toHaveBeenCalledTimes(maxTime + 1)
     })
 
-    it('creates a medicare flow for each year of employment', () => {
+    it('creates a medicare contribution for each year with income', () => {
+      person.createFederalInsuranceContributions()
+      var medicareExpense = person.getExpense(Constants.MEDICARE)
+      _.forEach(_.range(0, maxTime + 1), (index) => {
+        var contribution = medicareExpense.contributions[index][0]
+        expect(contribution.value).toEqual(medicareWithholding)
+      })
+    })
 
+    it('uses the TaxCalculator to calculate the social security withholding', () => {
+      person.createFederalInsuranceContributions()
+      expect(TaxCalculator.socialSecurityWithholding).toHaveBeenCalledWith(income)
+      expect(TaxCalculator.socialSecurityWithholding).toHaveBeenCalledTimes(maxTime + 1)
+    })
+
+    it('creates a social security contribution for each year with income', () => {
+      person.createFederalInsuranceContributions()
+      var socialSecurityExpense = person.getExpense(Constants.SOCIAL_SECURITY)
+      _.forEach(_.range(0, maxTime + 1), (index) => {
+        var contribution = socialSecurityExpense.contributions[index][0]
+        expect(contribution.value).toEqual(socialSecurityWithholding)
+      })
     })
   })
 

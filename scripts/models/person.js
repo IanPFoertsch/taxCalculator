@@ -52,14 +52,24 @@ Person.prototype.createFederalInsuranceContributions = function() {
   _.forEach(indexes, (timeIndex) => {
     var income = wages.getValueAtTime(timeIndex)
     var medicareWithholding = TaxCalculator.medicareWithholding(income)
+    var socialSecurityWithholding = TaxCalculator.socialSecurityWithholding(income)
 
     this.createMedicareContributions(medicareWithholding, timeIndex, timeIndex)
+    this.createSocialSecurityContributions(socialSecurityWithholding, timeIndex, timeIndex)
   })
 }
 
 Person.prototype.createMedicareContributions = function(value, startYear, endYear) {
+  //TODO - this is wrong! medicare doesn't come out of the Wages and compensation tax category
   var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   var targetAccount = this.getExpense(Constants.MEDICARE)
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
+Person.prototype.createSocialSecurityContributions = function(value, startYear, endYear) {
+  //TODO - this is wrong! social security doesn't come out of the Wages and compensation tax category
+  var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getExpense(Constants.SOCIAL_SECURITY)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
