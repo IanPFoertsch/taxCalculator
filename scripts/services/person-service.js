@@ -55,6 +55,7 @@ PersonService.prototype.buildPerson = function() {
   this.createEmploymentIncome(person)
   // FICA exempt HSA contributions
   person.createFederalInsuranceContributions()
+  person.createFederalIncomeWithHolding()
   this.createTraditionalIRAContribution(person)
   this.createFederalIncomeTaxFlows(person)
   this.createRothIRAContribution(person)

@@ -184,6 +184,85 @@ describe('Person', function() {
         Constants.MEDICARE
       )
     })
+
+    describe('createFederalIncomeTaxFlows', () => {
+      expectCreateFlowsDelegationFromMethod(
+        'createFederalIncomeTaxFlows',
+        TaxCategory,
+        'getTaxCategory',
+        Constants.TAXABLE_INCOME,
+        Expense,
+        'getExpense',
+        Constants.FEDERAL_INCOME_TAX
+      )
+    })
+  })
+
+  var setupExpenseContribution = function(functionName, expenseIdentifier, expectedExpense, maxTime) {
+    it('creates in income tax contribution for each year with income', () => {
+      person[functionName]()
+
+      var expense = person.getExpense(expenseIdentifier)
+      _.forEach(_.range(0, maxTime + 1), (index) => {
+        var contribution = expense.contributions[index][0]
+        expect(contribution.value).toEqual(expectedExpense)
+      })
+    })
+  }
+
+  var delegatesToTheTaxCalculator = function(functionName, taxCategoryName, delegatedMethod) {
+    it('delgates to the tax calculator based on the incoming value to the tax category', () => {
+      var inflowValueAtTime = 99999
+      var wages_account = person.getTaxCategory(taxCategoryName)
+      spyOn(wages_account, 'getInFlowValueAtTime').and.returnValue(inflowValueAtTime)
+      person[functionName]()
+      expect(TaxCalculator[delegatedMethod]).toHaveBeenCalledWith(inflowValueAtTime)
+    })
+  }
+
+  var createsFlowsForEachYearOfIncome = function(methodUnderTest, flowMethod, maxTime, testAmount) {
+    it('creates a flow for each year of income', () => {
+
+      spyOn(person, flowMethod)
+      person[methodUnderTest]()
+      _.forEach(_.range(0, maxTime + 1), (index) => {
+        expect(person[flowMethod]).toHaveBeenCalledWith(testAmount, index, index)
+      })
+    })
+  }
+
+
+
+  describe('createFederalIncomeWithHolding', () => {
+    var income = 100000
+    var maxTime = 10
+    var federalIncomeTax = 20000
+
+    beforeEach(()=> {
+      person.createEmploymentIncome(income, 0, maxTime)
+      person.createTraditionalIRAContribution(income, 0, maxTime)
+      spyOn(TaxCalculator, 'federalIncomeTax').and.returnValue(federalIncomeTax)
+    })
+
+    delegatesToTheTaxCalculator(
+      'createFederalIncomeWithHolding',
+      Constants.WAGES_AND_COMPENSATION,
+      'federalIncomeTax'
+    )
+
+    setupExpenseContribution(
+      'createFederalIncomeWithHolding',
+      Constants.FEDERAL_INCOME_TAX,
+      federalIncomeTax,
+      maxTime
+    )
+
+    createsFlowsForEachYearOfIncome(
+      'createFederalIncomeWithHolding',
+      'createFederalIncomeTaxFlows',
+      maxTime,
+      federalIncomeTax
+    )
   })
 
   describe('createFederalInsuranceContributions', () => {
@@ -198,35 +277,45 @@ describe('Person', function() {
       spyOn(TaxCalculator, 'socialSecurityWithholding').and.returnValue(socialSecurityWithholding)
     })
 
-    it('uses the TaxCalculator to calculate the medicare withholding', () => {
-      person.createFederalInsuranceContributions()
-      expect(TaxCalculator.medicareWithholding).toHaveBeenCalledWith(income)
-      expect(TaxCalculator.medicareWithholding).toHaveBeenCalledTimes(maxTime + 1)
-    })
+    delegatesToTheTaxCalculator(
+      'createFederalInsuranceContributions',
+      Constants.WAGES_AND_COMPENSATION,
+      'medicareWithholding'
+    )
 
-    it('creates a medicare contribution for each year with income', () => {
-      person.createFederalInsuranceContributions()
-      var medicareExpense = person.getExpense(Constants.MEDICARE)
-      _.forEach(_.range(0, maxTime + 1), (index) => {
-        var contribution = medicareExpense.contributions[index][0]
-        expect(contribution.value).toEqual(medicareWithholding)
-      })
-    })
+    delegatesToTheTaxCalculator(
+      'createFederalInsuranceContributions',
+      Constants.WAGES_AND_COMPENSATION,
+      'socialSecurityWithholding'
+    )
 
-    it('uses the TaxCalculator to calculate the social security withholding', () => {
-      person.createFederalInsuranceContributions()
-      expect(TaxCalculator.socialSecurityWithholding).toHaveBeenCalledWith(income)
-      expect(TaxCalculator.socialSecurityWithholding).toHaveBeenCalledTimes(maxTime + 1)
-    })
+    setupExpenseContribution(
+      'createFederalInsuranceContributions',
+      Constants.MEDICARE,
+      medicareWithholding,
+      maxTime
+    )
 
-    it('creates a social security contribution for each year with income', () => {
-      person.createFederalInsuranceContributions()
-      var socialSecurityExpense = person.getExpense(Constants.SOCIAL_SECURITY)
-      _.forEach(_.range(0, maxTime + 1), (index) => {
-        var contribution = socialSecurityExpense.contributions[index][0]
-        expect(contribution.value).toEqual(socialSecurityWithholding)
-      })
-    })
+    setupExpenseContribution(
+      'createFederalInsuranceContributions',
+      Constants.SOCIAL_SECURITY,
+      socialSecurityWithholding,
+      maxTime
+    )
+
+    createsFlowsForEachYearOfIncome(
+      'createFederalInsuranceContributions',
+      'createMedicareContributions',
+      maxTime,
+      medicareWithholding
+    )
+
+    createsFlowsForEachYearOfIncome(
+      'createFederalInsuranceContributions',
+      'createSocialSecurityContributions',
+      maxTime,
+      socialSecurityWithholding
+    )
   })
 
   describe('createFlows', () => {

@@ -16,6 +16,7 @@ Constants.NET_INCOME = 'Net Income'
 Constants.ADJUSTED_GROSS_INCOME = 'WAGES_AND_COMPENSATION'
 Constants.MODIFIED_ADJUSTED_GROSS_INCOME = 'WAGES_AND_COMPENSATION'
 
+Constants.TAXABLE_INCOME = 'Taxable Income'
 Constants.POST_TAX_INCOME = 'Post Tax Income'
 Constants.FEDERAL_INCOME_TAX = 'Federal Income Tax'
 Constants.MEDICARE = 'Medicare'
