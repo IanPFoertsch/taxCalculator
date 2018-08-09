@@ -196,6 +196,18 @@ describe('Person', function() {
         Constants.FEDERAL_INCOME_TAX
       )
     })
+
+    describe('createPreTaxBenefits', () => {
+      expectCreateFlowsDelegationFromMethod(
+        'createPreTaxBenefits',
+        TaxCategory,
+        'getTaxCategory',
+        Constants.WAGES_AND_COMPENSATION,
+        Expense,
+        'getExpense',
+        Constants.PRE_TAX_BENEFITS
+      )
+    })
   })
 
   var setupExpenseContribution = function(functionName, expenseIdentifier, expectedExpense, maxTime) {
@@ -222,7 +234,6 @@ describe('Person', function() {
 
   var createsFlowsForEachYearOfIncome = function(methodUnderTest, flowMethod, maxTime, testAmount) {
     it('creates a flow for each year of income', () => {
-
       spyOn(person, flowMethod)
       person[methodUnderTest]()
       _.forEach(_.range(0, maxTime + 1), (index) => {
@@ -231,7 +242,25 @@ describe('Person', function() {
     })
   }
 
+  describe('createSocialSecurityWageFlows', () => {
+    var income = 100000
+    var maxTime = 10
+    var preTaxBenefits = 5000
 
+    beforeEach(()=> {
+      person.createEmploymentIncome(income, 0, maxTime)
+      person.createPreTaxBenefits(preTaxBenefits, 0, maxTime)
+    })
+
+    it('creates a flow by deducting pre tax benefits from total income for each year with income', () => {
+      person.createSocialSecurityWageFlows()
+
+      var socialSecurityWages = person.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
+      _.forEach(_.range(0, maxTime + 1), (index) => {
+        expect(socialSecurityWages.getValueAtTime(index)).toEqual(income - preTaxBenefits)
+      })
+    })
+  })
 
   describe('createFederalIncomeWithHolding', () => {
     var income = 100000
@@ -240,7 +269,6 @@ describe('Person', function() {
 
     beforeEach(()=> {
       person.createEmploymentIncome(income, 0, maxTime)
-      person.createTraditionalIRAContribution(income, 0, maxTime)
       spyOn(TaxCalculator, 'federalIncomeTax').and.returnValue(federalIncomeTax)
     })
 
@@ -279,13 +307,13 @@ describe('Person', function() {
 
     delegatesToTheTaxCalculator(
       'createFederalInsuranceContributions',
-      Constants.WAGES_AND_COMPENSATION,
+      Constants.SOCIAL_SECURITY_WAGES,
       'medicareWithholding'
     )
 
     delegatesToTheTaxCalculator(
       'createFederalInsuranceContributions',
-      Constants.WAGES_AND_COMPENSATION,
+      Constants.SOCIAL_SECURITY_WAGES,
       'socialSecurityWithholding'
     )
 

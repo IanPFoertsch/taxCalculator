@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-
   var projectionButton = new Button({
     text: 'Project Income',
     onClick: function() {

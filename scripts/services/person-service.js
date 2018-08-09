@@ -15,24 +15,24 @@ PersonService.prototype.createEmploymentIncome = function(person) {
   person.createEmploymentIncome(wages, 0, careerLength)
 }
 
-PersonService.prototype.createTraditionalIRAContribution = function(person) {
-  const contributions = this.getListenerInput(Constants.TRADITIONAL_CONTRIBUTIONS)
+PersonService.prototype.createPreTaxRetirementContributions = function(person) {
   const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
-  person.createTraditionalIRAContribution(contributions, 0, careerLength)
+  const iraContributions = this.getListenerInput(Constants.TRADITIONAL_IRA_CONTRIBUTIONS)
+
+  person.createTraditionalIRAContribution(iraContributions, 0, careerLength)
 }
 
-PersonService.prototype.createRothIRAContribution = function(person) {
-  const contributions = this.getListenerInput(Constants.ROTH_CONTRIBUTIONS)
+PersonService.prototype.createRothRetirementContributions = function(person) {
+  const contributions = this.getListenerInput(Constants.ROTH_IRA_CONTRIBUTIONS)
   const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
   person.createRothIRAContribution(contributions, 0, careerLength)
 }
 
-PersonService.prototype.createFederalIncomeTaxFlows = function(person) {
-  const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
-  // for every year in the career, get the value of the WAGES_AND_COMPENSATION,
-  //
+PersonService.prototype.createPreTaxBenefits = function(person) {
+  // const benefits = this.getListenerInput(Constants.PRE_TAX_BENEFITS)
+  // const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
+  // person.createPreTaxBenefits(benefits, 0, careerLength)
 }
-
 
 PersonService.prototype.buildPerson = function() {
   var person = new Person(this.getListenerInput(Constants.AGE))
@@ -41,8 +41,6 @@ PersonService.prototype.buildPerson = function() {
   // Order matters, so we need to create things in sequence:
   // Wages and Compensation
 
-  // medicare
-  // social security
   // Tax deferred contributions
   // federal income tax
   // state income tax
@@ -53,12 +51,18 @@ PersonService.prototype.buildPerson = function() {
   // Expenses
   // Brokerage
   this.createEmploymentIncome(person)
-  // FICA exempt HSA contributions
+  this.createPreTaxBenefits()
+  //FICA EXEMPT HSA CONTRIBUTIONS
+  person.createSocialSecurityWageFlows()
   person.createFederalInsuranceContributions()
+
+  this.createPreTaxRetirementContributions(person)
+
   person.createFederalIncomeWithHolding()
-  this.createTraditionalIRAContribution(person)
-  this.createFederalIncomeTaxFlows(person)
-  this.createRothIRAContribution(person)
+
+  this.createRothRetirementContributions(person)
+
+  //create post-tax retirement contributions
   return person
 }
 

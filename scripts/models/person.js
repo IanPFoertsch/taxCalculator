@@ -45,12 +45,42 @@ Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
+Person.prototype.createPreTaxBenefits = function(value, startYear, endYear) {
+  var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getExpense(Constants.PRE_TAX_BENEFITS)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
+Person.prototype.createSocialSecurityWages = function(value, startYear, endYear) {
+  var sourceAccount = this.getThirdPartyAccount(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
+Person.prototype.createSocialSecurityWageFlows = function() {
+  var indexes = this.timeIndices()
+  var wages = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var preTaxBenefits = this.getExpense(Constants.PRE_TAX_BENEFITS)
+  var socialSecurityWages = this.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
+
+  _.forEach(indexes, (index) => {
+    var income = wages.getInFlowValueAtTime(index)
+    var benefits = preTaxBenefits.getInFlowValueAtTime(index)
+
+    this.createSocialSecurityWages((income - benefits), index, index, wages, socialSecurityWages)
+  })
+}
+
 Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYear) {
   var sourceAccount = this.getTaxCategory(Constants.TAXABLE_INCOME)
   var targetAccount = this.getExpense(Constants.FEDERAL_INCOME_TAX)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
+// TODO: refactor createFederalIncomeWithHolding and createFederalInsuranceContributions
+// to re-use their similar logic
 Person.prototype.createFederalIncomeWithHolding = function() {
   var indexes = this.timeIndices()
   var taxableIncome = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
@@ -65,7 +95,7 @@ Person.prototype.createFederalIncomeWithHolding = function() {
 
 Person.prototype.createFederalInsuranceContributions = function() {
   var indexes = this.timeIndices()
-  var wages = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var wages = this.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
 
   _.forEach(indexes, (timeIndex) => {
     var income = wages.getInFlowValueAtTime (timeIndex)
