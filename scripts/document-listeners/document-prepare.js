@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
   var inputRows = [
-    { label: Constants.WAGES_AND_COMPENSATION, type: 'number', default: 50000, output: Constants.WAGES_AND_COMPENSATION },
-    { label: Constants.TRADITIONAL_CONTRIBUTIONS, type: 'number', default: 5000, output: Constants.TRADITIONAL_IRA },
-    { label: Constants.ROTH_CONTRIBUTIONS, type: 'number', default: 2000, output: Constants.ROTH_IRA },
-    // { label: 'Brokerage Investments', type: 'number', default: 1000, output: Constants.BROKERAGE },
-    { label: Constants.CAREER_LENGTH, type: 'number', default: 20, output: Constants.CAREER_LENGTH},
-    { label: Constants.AGE, type: 'number', default: 30, output: Constants.AGE },
-    { label: 'Retirement Spending', type: 'number', default: 10000, output: 'Retirement Spending' },
-    { label: 'Retirement Length', type: 'number', default: 30, output: 'Retirement Length' },
+    { label: Constants.WAGES_AND_COMPENSATION, type: 'number', default: 50000 },
+    { label: Constants.TRADITIONAL_IRA_CONTRIBUTIONS, type: 'number', default: 5000},
+    { label: Constants.ROTH_IRA_CONTRIBUTIONS, type: 'number', default: 2000},
+    // { label: 'Brokerage Investments', type: 'number', default: 1000},
+    { label: Constants.CAREER_LENGTH, type: 'number', default: 20},
+    { label: Constants.AGE, type: 'number', default: 30},
+    { label: 'Retirement Spending', type: 'number', default: 10000},
+    { label: 'Retirement Length', type: 'number', default: 30},
   ]
 
   var inputTable =  new InputTableElement({
