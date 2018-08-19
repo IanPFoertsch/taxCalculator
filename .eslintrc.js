@@ -34,6 +34,7 @@ module.exports = {
     "Adapters": true,
     "Calculator": true,
     "Constants": true,
-    "Models": true
+    "Models": true,
+    "Services": true
   }
 };

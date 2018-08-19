@@ -114,8 +114,6 @@ Account.prototype.calculateInterest = function(endTime) {
 }
 
 Account.prototype.singlePeriodCompounding = function(timeStep) {
-  //get the value for the account at the previous time step
-  //use the value calculator to calculate the interest on it
   var value = this.getValueAtTime(timeStep)
   return value * Constants.DEFAULT_GROWTH_RATE
 }

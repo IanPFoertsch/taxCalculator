@@ -28,14 +28,14 @@ module.exports = function(grunt) {
       // all: {
       server: {
         options: {
-					port: 9000,
-					hostname: '0.0.0.0',
-					bases: ['../taxCalculator'],
-					livereload: true,
+          port: 9000,
+          hostname: '0.0.0.0',
+          bases: ['../taxCalculator'],
+          livereload: true,
           script: 'index.html'
-				}
-			}
-		}
+        }
+      }
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');

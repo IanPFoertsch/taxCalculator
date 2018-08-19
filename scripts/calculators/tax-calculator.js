@@ -1,21 +1,6 @@
 'use-strict';
 function TaxCalculator() {}
 
-TaxCalculator.calculateTaxes = function(personObject) {
-  let grossIncome = personObject[Constants.WAGES_AND_COMPENSATION] || 0;
-  let preTaxContributions = personObject['Traditional IRA'] || 0;
-  let rothContributions = personObject['Roth IRA'] || 0;
-  let incomeLessDeductions = this.lessDeductions(grossIncome, preTaxContributions);
-  var taxes = {
-    'Federal Income Tax': this.federalIncomeTax(incomeLessDeductions),
-    'Social Security Withholding': this.socialSecurityWithholding(grossIncome),
-    'Medicare Withholding': this.medicareWithholding(grossIncome),
-    'Net Income': this.netIncome(grossIncome, preTaxContributions) - rothContributions
-  };
-
-  return taxes;
-};
-
 TaxCalculator.federalIncomeTax = function(taxableIncome) {
   //TODO: split this out into a loaded config file
   var brackets = {
@@ -51,32 +36,15 @@ TaxCalculator.federalIncomeTax = function(taxableIncome) {
 };
 
 TaxCalculator.socialSecurityWithholding = function(income) {
-  var maxSSNTaxableEarnings = 118500;
-  var socialSecurityWithholdingRate = 0.062;
-  var applicableIncome = minimum(income, maxSSNTaxableEarnings);
-  return applicableIncome * socialSecurityWithholdingRate;
+  //TODO: Assume for now that the user is not self-employed
+  var applicableIncome = minimum(income, Constants.SOCIAL_SECURITY_MAXIMUM);
+  return applicableIncome * Constants.SOCIAL_SECURITY_RATE;
 };
 
-TaxCalculator.medicareWithholding = function (income) {
-  var medicareWithholdingRate = 0.0145;
-  return income * medicareWithholdingRate;
-};
-
-TaxCalculator.lessDeductions = function (income, deductableContributions) {
-
-  //TODO: extract these to a JSON config
-  var deductionsAndExemptions = {
-    'standardDeduction': 6350,
-    'personalExemption': 4050, //assumption is that this is for a single person
-    'deductableContributions': deductableContributions
-  };
-
-  var totalDeductions = _.reduce(deductionsAndExemptions, function(total, value) {
-    return (total + value);
-  }, 0);
-
-  return income - totalDeductions;
-};
+TaxCalculator.medicareWithholding = function(income) {
+  //TODO: Assume for now that the user is not self-employed
+  return income * Constants.MEDICARE_RATE
+}
 
 TaxCalculator.netIncome = function(grossIncome, deductableContributions) {
   var medicaid = TaxCalculator.medicareWithholding(grossIncome);
