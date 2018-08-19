@@ -39,22 +39,17 @@ Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount
 }
 
 Person.prototype.createEmploymentIncome = function(value, startYear, endYear) {
-  var sourceAccount = this.getThirdPartyAccount(Constants.EMPLOYER)
-  var targetAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var employer = this.getThirdPartyAccount(Constants.EMPLOYER)
+  var wages = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var totalIncome = this.getTaxCategory(Constants.TOTAL_INCOME)
 
-  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+  this.createFlows(value, startYear, endYear, employer, wages)
+  this.createFlows(value, startYear, endYear, wages, totalIncome)
 }
 
 Person.prototype.createPreTaxBenefits = function(value, startYear, endYear) {
   var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   var targetAccount = this.getExpense(Constants.PRE_TAX_BENEFITS)
-
-  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
-}
-
-Person.prototype.createSocialSecurityWages = function(value, startYear, endYear) {
-  var sourceAccount = this.getThirdPartyAccount(Constants.WAGES_AND_COMPENSATION)
-  var targetAccount = this.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
 
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
@@ -74,20 +69,34 @@ Person.prototype.createSocialSecurityWageFlows = function() {
 }
 
 Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYear) {
-  var sourceAccount = this.getTaxCategory(Constants.TAXABLE_INCOME)
+  var sourceAccount = this.getTaxCategory(Constants.TOTAL_INCOME)
   var targetAccount = this.getExpense(Constants.FEDERAL_INCOME_TAX)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
-// TODO: refactor createFederalIncomeWithHolding and createFederalInsuranceContributions
-// to re-use their similar logic
 Person.prototype.createFederalIncomeWithHolding = function() {
   var indexes = this.timeIndices()
-  var taxableIncome = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var incomes =  [
+    //TODO: ADD ADDITIONAL INCOMES HERE
+    this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  ]
+
+  var deductions = [
+    this.getAccumulatingAccount(Constants.TRADITIONAL_IRA),
+    this.getAccumulatingAccount(Constants.TRADITIONAL_401K)
+  ]
 
   _.forEach(indexes, (timeIndex) => {
-    var income = taxableIncome.getInFlowValueAtTime(timeIndex)
-    var federalIncomeTax = TaxCalculator.federalIncomeTax(income)
+    var totalIncome = _.reduce(incomes, (rollingIncome, account) => {
+      return rollingIncome + account.getInFlowValueAtTime(timeIndex)
+    }, 0)
+
+    var totalDeductions = _.reduce(deductions, (rollingDeductions, deduction) => {
+      return rollingDeductions + deduction.getInFlowValueAtTime(timeIndex)
+    }, 0)
+
+    var taxableIncome = totalIncome - totalDeductions
+    var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome)
 
     this.createFederalIncomeTaxFlows(federalIncomeTax, timeIndex, timeIndex)
   })
@@ -95,12 +104,17 @@ Person.prototype.createFederalIncomeWithHolding = function() {
 
 Person.prototype.createFederalInsuranceContributions = function() {
   var indexes = this.timeIndices()
-  var wages = this.getTaxCategory(Constants.SOCIAL_SECURITY_WAGES)
+  var wages = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var preTaxBenefits = this.getExpense(Constants.PRE_TAX_BENEFITS)
 
   _.forEach(indexes, (timeIndex) => {
     var income = wages.getInFlowValueAtTime (timeIndex)
-    var medicareWithholding = TaxCalculator.medicareWithholding(income)
-    var socialSecurityWithholding = TaxCalculator.socialSecurityWithholding(income)
+    var benefits = preTaxBenefits.getInFlowValueAtTime(timeIndex)
+
+    var socialSecurityWages = income - benefits
+
+    var medicareWithholding = TaxCalculator.medicareWithholding(socialSecurityWages)
+    var socialSecurityWithholding = TaxCalculator.socialSecurityWithholding(socialSecurityWages)
 
     this.createMedicareContributions(medicareWithholding, timeIndex, timeIndex)
     this.createSocialSecurityContributions(socialSecurityWithholding, timeIndex, timeIndex)
@@ -108,14 +122,12 @@ Person.prototype.createFederalInsuranceContributions = function() {
 }
 
 Person.prototype.createMedicareContributions = function(value, startYear, endYear) {
-  //TODO - this is wrong! medicare doesn't come out of the Wages and compensation tax category
   var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   var targetAccount = this.getExpense(Constants.MEDICARE)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
 Person.prototype.createSocialSecurityContributions = function(value, startYear, endYear) {
-  //TODO - this is wrong! social security doesn't come out of the Wages and compensation tax category
   var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   var targetAccount = this.getExpense(Constants.SOCIAL_SECURITY)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
@@ -128,6 +140,13 @@ Person.prototype.createTraditionalIRAContribution = function(value, startYear, e
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
+Person.prototype.createTraditional401kContribution = function(value, startYear, endYear) {
+  var sourceAccount = this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
+  var targetAccount = this.getAccumulatingAccount(Constants.TRADITIONAL_401K)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
+}
+
 Person.prototype.createRothIRAContribution = function(value, startYear, endYear) {
   var sourceAccount = this.getTaxCategory(Constants.POST_TAX_INCOME)
   var targetAccount = this.getAccumulatingAccount(Constants.ROTH_IRA)
@@ -135,9 +154,11 @@ Person.prototype.createRothIRAContribution = function(value, startYear, endYear)
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
-Person.prototype.getAccountValueData = function() {
-  //from current age to end of time, format the account value data
-  //as 'Account Label': [{x: timeIndex, y: accountValue}, {...}, {...}]
+Person.prototype.createRoth401kContribution = function(value, startYear, endYear) {
+  var sourceAccount = this.getTaxCategory(Constants.POST_TAX_INCOME)
+  var targetAccount = this.getAccumulatingAccount(Constants.ROTH_401K)
+
+  this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
 Person.prototype.getValue = function(timeIndex) {

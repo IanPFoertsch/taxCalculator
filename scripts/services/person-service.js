@@ -19,13 +19,24 @@ PersonService.prototype.createPreTaxRetirementContributions = function(person) {
   const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
   const iraContributions = this.getListenerInput(Constants.TRADITIONAL_IRA_CONTRIBUTIONS)
 
+  const _401kContributions = this.getListenerInput(Constants.TRADITIONAL_401K_CONTRIBUTIONS)
+
   person.createTraditionalIRAContribution(iraContributions, 0, careerLength)
+  person.createTraditional401kContribution(_401kContributions, 0, careerLength)
 }
 
 PersonService.prototype.createRothRetirementContributions = function(person) {
   const contributions = this.getListenerInput(Constants.ROTH_IRA_CONTRIBUTIONS)
+  const _401kContributions = this.getListenerInput(Constants.ROTH_401K_CONTRIBUTIONS)
+
   const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
   person.createRothIRAContribution(contributions, 0, careerLength)
+  person.createRoth401kContribution(_401kContributions, 0, careerLength)
+}
+
+PersonService.prototype.createTaxableWithdrawals = function(person) {
+  //Taxable withdrawals = withdrawals from Traditional Basis accounts
+//
 }
 
 PersonService.prototype.createPreTaxBenefits = function(person) {
@@ -36,9 +47,8 @@ PersonService.prototype.createPreTaxBenefits = function(person) {
 
 PersonService.prototype.buildPerson = function() {
   var person = new Person(this.getListenerInput(Constants.AGE))
-
-  //TODO: figure out a way to do this which isn't so order-dependant
   // Order matters, so we need to create things in sequence:
+  //This is all for working career
   // Wages and Compensation
 
   // Tax deferred contributions
@@ -51,18 +61,19 @@ PersonService.prototype.buildPerson = function() {
   // Expenses
   // Brokerage
   this.createEmploymentIncome(person)
+  this.createTaxableWithdrawals(person)
   this.createPreTaxBenefits()
   //FICA EXEMPT HSA CONTRIBUTIONS
-  person.createSocialSecurityWageFlows()
+  //spend-down strategies
+  //build person's working career and retirement period
+  //build contributions to retirement accounts
+  //calculate interest to accounts
+  //build withdrawals from accounts
+  //calculate taxes
   person.createFederalInsuranceContributions()
-
   this.createPreTaxRetirementContributions(person)
-
   person.createFederalIncomeWithHolding()
-
   this.createRothRetirementContributions(person)
-
-  //create post-tax retirement contributions
   return person
 }
 
