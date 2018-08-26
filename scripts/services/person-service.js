@@ -34,11 +34,6 @@ PersonService.prototype.createRothRetirementContributions = function(person) {
   person.createRoth401kContribution(_401kContributions, 0, careerLength)
 }
 
-PersonService.prototype.createTaxableWithdrawals = function(person) {
-  //Taxable withdrawals = withdrawals from Traditional Basis accounts
-//
-}
-
 PersonService.prototype.createPreTaxBenefits = function(person) {
   // const benefits = this.getListenerInput(Constants.PRE_TAX_BENEFITS)
   // const careerLength = this.getListenerInput(Constants.CAREER_LENGTH)
@@ -46,11 +41,11 @@ PersonService.prototype.createPreTaxBenefits = function(person) {
 }
 
 PersonService.prototype.buildPerson = function() {
-  var person = new Person(this.getListenerInput(Constants.AGE))
-  // Order matters, so we need to create things in sequence:
-  //This is all for working career
-  // Wages and Compensation
-
+  var person = new Person(
+    this.getListenerInput(Constants.AGE),
+    this.getListenerInput(Constants.CAREER_LENGTH),
+    this.getListenerInput(Constants.RETIREMENT_LENGTH)
+  )
   // Tax deferred contributions
   // federal income tax
   // state income tax
@@ -60,9 +55,19 @@ PersonService.prototype.buildPerson = function() {
   // After-tax contributions
   // Expenses
   // Brokerage
-  this.createEmploymentIncome(person)
-  this.createTaxableWithdrawals(person)
-  this.createPreTaxBenefits()
+  person.createWorkingPeriod({
+    wagesAndCompensation: this.getListenerInput(Constants.WAGES_AND_COMPENSATION),
+    roth401kContributions: this.getListenerInput(Constants.ROTH_401K_CONTRIBUTIONS),
+    traditional401kContributions: this.getListenerInput(Constants.TRADITIONAL_401K_CONTRIBUTIONS)
+  })
+
+  person.createSpendDownPeriod({
+    retirementLength: this.getListenerInput(Constants.RETIREMENT_LENGTH),
+    retirementSpending: this.getListenerInput(Constants.RETIREMENT_SPENDING)
+  })
+  // this.createEmploymentIncome(person)
+  // this.createTaxableWithdrawals(person)
+  // this.createPreTaxBenefits()
   //FICA EXEMPT HSA CONTRIBUTIONS
   //spend-down strategies
   //build person's working career and retirement period
@@ -70,10 +75,10 @@ PersonService.prototype.buildPerson = function() {
   //calculate interest to accounts
   //build withdrawals from accounts
   //calculate taxes
-  person.createFederalInsuranceContributions()
-  this.createPreTaxRetirementContributions(person)
-  person.createFederalIncomeWithHolding()
-  this.createRothRetirementContributions(person)
+  // person.createFederalInsuranceContributions()
+  // this.createPreTaxRetirementContributions(person)
+  // person.createFederalIncomeWithHolding()
+  // this.createRothRetirementContributions(person)
   return person
 }
 

@@ -43,30 +43,51 @@ describe('PersonService', function() {
     describe('with employment', () => {
       var wages = 50000
       var careerLength
+      var age = 30
+      var retirementLength = 20
+      var roth401kContributions = 2000
+      var traditional401kContributions = 3000
+      var retirementSpending = 10000
 
       beforeEach(() => {
         listenerStubHash[Constants.WAGES_AND_COMPENSATION] = wages
         listenerStubHash[Constants.CAREER_LENGTH] = careerLength
+        listenerStubHash[Constants.AGE] = age
+        listenerStubHash[Constants.RETIREMENT_LENGTH] = retirementLength
+        listenerStubHash[Constants.ROTH_401K_CONTRIBUTIONS] = roth401kContributions
+        listenerStubHash[Constants.TRADITIONAL_401K_CONTRIBUTIONS] = traditional401kContributions
+        listenerStubHash[Constants.RETIREMENT_SPENDING] = retirementSpending
       })
 
-      it('builds a person with the specified employment income', () => {
+      it('creates a person with the specified age, career length and retirement length', () => {
         spyOn(Person.prototype, 'createEmploymentIncome')
-        service.buildPerson()
-        expect(
-          Person.prototype.createEmploymentIncome
-        ).toHaveBeenCalledWith(wages, 0, careerLength)
+        var person = service.buildPerson()
+        expect(person.age).toEqual(age)
+        expect(person.careerLength).toEqual(careerLength)
+        expect(person.retirementLength).toEqual(retirementLength)
       })
 
-      it('creates federal insurance contributions on the person', () => {
-        spyOn(Person.prototype, 'createFederalInsuranceContributions')
+      it('creates a working period with the specified wages and contributions', () => {
+        spyOn(Person.prototype, 'createWorkingPeriod')
         service.buildPerson()
         expect(
-          Person.prototype.createFederalInsuranceContributions
-        ).toHaveBeenCalledWith()
+          Person.prototype.createWorkingPeriod
+        ).toHaveBeenCalledWith({
+          wagesAndCompensation: wages,
+          roth401kContributions: roth401kContributions,
+          traditional401kContributions: traditional401kContributions
+        })
       })
 
-      describe('with ', () => {
-
+      it('creates a spend down period with the specified retirement spending', () => {
+        spyOn(Person.prototype, 'createSpendDownPeriod')
+        service.buildPerson()
+        expect(
+          Person.prototype.createSpendDownPeriod
+        ).toHaveBeenCalledWith({
+          retirementLength: retirementLength,
+          retirementSpending: retirementSpending
+        })
       })
     })
   })

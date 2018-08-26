@@ -15,6 +15,7 @@ describe('AccountDataAdapter', function() {
       spyOn(account, 'getValueAtTime').and.callFake((arg) => {return (arg + 100) * 10})
     })
 
+
     it('queries the account for the value at particular time', () => {
       AccountDataAdapter.accountValueData(account, maxTime)
       _.forEach(_.range(0, maxTime + 1), (time) => {

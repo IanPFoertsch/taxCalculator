@@ -13,9 +13,13 @@ Constants.ROTH_IRA_CONTRIBUTIONS = 'Roth IRA Contributions'
 Constants.TRADITIONAL_401K_CONTRIBUTIONS = 'Traditional 401k Contributions'
 Constants.ROTH_401K_CONTRIBUTIONS = 'Roth 401k Contributions'
 
+Constants.TRADITIONAL_WITHDRAWAL = 'Traditional Withdrawals'
+
 Constants.WAGES_AND_COMPENSATION = 'Wages and Compensation'
 Constants.CAREER_LENGTH = 'Career Length'
 Constants.RETIREMENT_LENGTH = 'Retirement Length'
+Constants.RETIREMENT_SPENDING = 'Retirement Spending'
+
 Constants.EMPLOYER = 'Employer'
 
 Constants.NET_INCOME = 'Net Income'
@@ -36,6 +40,7 @@ Constants.MEDICARE_RATE = 0.0145
 Constants.SOCIAL_SECURITY_RATE = 0.062
 //TODO: update these values for 2018
 Constants.SOCIAL_SECURITY_MAXIMUM = 118500
+Constants.STANDARD_DEDUCTION = 12000
 
 Constants.DEFAULT_GROWTH_RATE = 0.03
 Constants.AGE = 'Age'
