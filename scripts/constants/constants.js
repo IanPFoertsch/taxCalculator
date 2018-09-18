@@ -44,3 +44,13 @@ Constants.STANDARD_DEDUCTION = 12000
 
 Constants.DEFAULT_GROWTH_RATE = 0.03
 Constants.AGE = 'Age'
+
+Constants.FEDERAL_INCOME_BRACKETS = {
+  '9275': 0.10,
+  '37650': 0.15,
+  '91150': 0.25,
+  '190150': 0.28,
+  '413350': 0.33,
+  '415050': 0.35,
+  '1000000000': 0.396
+}
