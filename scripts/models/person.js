@@ -46,7 +46,7 @@ Person.prototype.createWorkingPeriod = function(options) {
   this.createTraditional401kContribution(traditional401kContributions, this.age, retirementYear)
   this.createRoth401kContribution(roth401kContributions, this.age, retirementYear)
   this.createFederalInsuranceContributions()
-  this.createFederalIncomeWithHolding()
+  this.createFederalIncomeWithHolding(this.age, retirementYear)
 
 }
 
@@ -58,6 +58,8 @@ Person.prototype.createSpendDownPeriod = function(options) {
   _.forEach(_.range(retirementYear + 1, endOfRetirement + 1), (index) => {
     this.retirementWithdrawalsForIndex(index, retirementSpending)
   })
+
+  this.createFederalIncomeWithHolding(retirementYear + 1, endOfRetirement + 1)
 }
 
 Person.prototype.retirementWithdrawalsForIndex = function(index, retirementSpending) {
@@ -211,22 +213,26 @@ Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYea
   this.createFlows(value, startYear, endYear, sourceAccount, targetAccount)
 }
 
-Person.prototype.createFederalIncomeWithHolding = function() {
-  var indexes = this.timeIndices()
+Person.prototype.createFederalIncomeWithHolding = function(startYear, endYear) {
+  var indexes = _.range(startYear, endYear + 1)
+
   var incomes =  [
-    //TODO: ADD ADDITIONAL INCOMES HERE
+    this.getTaxCategory(Constants.TRADITIONAL_WITHDRAWAL),
     this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
   ]
 
   var deductions = [
-    this.getAccumulatingAccount(Constants.TRADITIONAL_IRA),
+    //TODO: add this back once we support traditional IRA deduction
+    // this.getAccumulatingAccount(Constants.TRADITIONAL_IRA),
     this.getAccumulatingAccount(Constants.TRADITIONAL_401K)
   ]
-
+  this.getTaxCategory(Constants.WAGES_AND_COMPENSATION).getInFlowValueAtTime(0)
   _.forEach(indexes, (timeIndex) => {
     var totalIncome = _.reduce(incomes, (rollingIncome, account) => {
+
       return rollingIncome + account.getInFlowValueAtTime(timeIndex)
     }, 0)
+
 
     var totalDeductions = _.reduce(deductions, (rollingDeductions, deduction) => {
       return rollingDeductions + deduction.getInFlowValueAtTime(timeIndex)

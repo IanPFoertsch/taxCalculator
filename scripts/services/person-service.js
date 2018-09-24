@@ -58,7 +58,7 @@ PersonService.prototype.buildPerson = function() {
   person.createWorkingPeriod({
     wagesAndCompensation: this.getListenerInput(Constants.WAGES_AND_COMPENSATION),
     roth401kContributions: this.getListenerInput(Constants.ROTH_401K_CONTRIBUTIONS),
-    traditional401kContributions: this.getListenerInput(Constants.TRADITIONAL_401K_CONTRIBUTIONS)
+    traditional401kContributions: this.getListenerInput(Constants.TRADITIONAL_401K_CONTRIBUTIONS),
   })
 
   person.createSpendDownPeriod({

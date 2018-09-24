@@ -315,49 +315,72 @@ describe('Person', function() {
   }
 
   describe('createFederalIncomeWithHolding', () => {
-    var income = 100000
     var maxTime = 10
     var federalIncomeTax = 20000
+    let traditionalWithdrawals = new TaxCategory(Constants.TRADITIONAL_WITHDRAWAL)
+    let wagesAndCompensation = new TaxCategory(Constants.WAGES_AND_COMPENSATION)
+    let totalIncomeAccount = new TaxCategory(Constants.TOTAL_INCOME)
+    let traditional401k = new AccumulatingAccount(Constants.TRADITIONAL_401K)
+
+    let traditionalWithdrawalIncome = 10000
+    let wagesAndCompensationIncome = 20000
+    let traditional401kWithdrawal = 5000
+
+    let taxCategories = {
+      [Constants.WAGES_AND_COMPENSATION]: wagesAndCompensation,
+      [Constants.TRADITIONAL_WITHDRAWAL]: traditionalWithdrawals,
+      [Constants.TOTAL_INCOME]: totalIncomeAccount
+    }
+
+    let deductions = {
+      [Constants.TRADITIONAL_401K]: traditional401k,
+    }
 
     beforeEach(()=> {
-      person.createEmploymentIncome(income, 0, maxTime)
       spyOn(TaxCalculator, 'federalIncomeTax').and.returnValue(federalIncomeTax)
+      spyOn(traditionalWithdrawals, 'getInFlowValueAtTime').and.returnValue(traditionalWithdrawalIncome)
+      spyOn(wagesAndCompensation, 'getInFlowValueAtTime').and.returnValue(wagesAndCompensationIncome)
+      spyOn(traditional401k, 'getInFlowValueAtTime').and.returnValue(traditional401kWithdrawal)
+      spyOn(person, 'getTaxCategory')
+        .and
+        .callFake((arg) => {
+          return taxCategories[arg]
+        })
+      spyOn(person, 'getAccumulatingAccount')
+        .and
+        .callFake((arg) => {
+          return deductions[arg]
+        })
     })
 
-
-
-    it('calculates the total income minus the total deductions', () => {
-      //TODO -add tests here
-      // var delegatesToTheTaxCalculator = function(functionName, taxCategoryName, delegatedMethod) {
-      //   it('delegates to the tax calculator based on the incoming value to the tax category', () => {
-      //     var totalIncome = 99999
-      //     var incomeAccount = person.getTaxCategory(Constants.TOTAL_INCOME)
-      //     spyOn(incomeAccount, 'getInFlowValueAtTime').and.returnValue(totalIncome)
-      //     person[functionName]()
-      //     expect(TaxCalculator[delegatedMethod]).toHaveBeenCalledWith(totalIncome)
-      //   })
-      // }
+    describe('for a single year', () => {
+      var timeIndex = 0
+      it('calculates the total income by querying the incoming accounts', () => {
+        person.createFederalIncomeWithHolding(timeIndex, timeIndex)
+        expect(wagesAndCompensation.getInFlowValueAtTime).toHaveBeenCalledWith(timeIndex)
+        expect(traditionalWithdrawals.getInFlowValueAtTime).toHaveBeenCalledWith(timeIndex)
+        expect(TaxCalculator.federalIncomeTax).toHaveBeenCalledWith(
+          (wagesAndCompensationIncome + traditionalWithdrawalIncome) -
+          (traditional401kWithdrawal + Constants.STANDARD_DEDUCTION)
+        )
+        var federalIncomeTaxAccount = person.getExpense(Constants.FEDERAL_INCOME_TAX)
+        expect(federalIncomeTaxAccount.getInFlowValueAtTime(timeIndex)).toEqual(federalIncomeTax)
+      })
     })
 
-    // delegatesToTheTaxCalculator(
-    //   'createFederalIncomeWithHolding',
-    //   Constants.TOTAL_INCOME,
-    //   'federalIncomeTax'
-    // )
+    describe('for multiple years', () => {
+      it('creates in income tax contribution for each specified year', () => {
+        person.createFederalIncomeWithHolding(0, maxTime)
 
-    setupExpenseContribution(
-      'createFederalIncomeWithHolding',
-      Constants.FEDERAL_INCOME_TAX,
-      federalIncomeTax,
-      maxTime
-    )
+        var expense = person.getExpense(Constants.FEDERAL_INCOME_TAX)
 
-    // createsFlowsForEachYearOfIncome(
-    //   'createFederalIncomeWithHolding',
-    //   'createFederalIncomeTaxFlows',
-    //   maxTime,
-    //   federalIncomeTax
-    // )
+        _.forEach(_.range(0, maxTime + 1), (index) => {
+          var contribution = expense.contributions[index][0]
+
+          expect(contribution.value).toEqual(federalIncomeTax)
+        })
+      })
+    })
   })
 
   describe('createFederalInsuranceContributions', () => {
