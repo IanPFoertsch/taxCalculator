@@ -27,7 +27,10 @@ module.exports = {
       "warn"
     ],
     "jasmine/no-focused-tests": 0,
-    "jasmine/new-line-before-expect": 0
+    "jasmine/new-line-before-expect": 0,
+    "jasmine/no-suite-dupes": 0,
+    "jasmine/no-spec-dupes": 0
+
   },
   globals: {
     "_": true,
