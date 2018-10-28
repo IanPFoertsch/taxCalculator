@@ -3,6 +3,7 @@ var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
 var PersonDataAdapter = Adapters.PersonDataAdapter
 var TaxCalculator = Calculator.TaxCalculator
+var WithdrawalCalculator = Calculator.WithdrawalCalculator
 
 function Person(age, workingPeriod, retirementLength) {
   this.retirementLength = retirementLength
@@ -63,20 +64,15 @@ Person.prototype.createSpendDownPeriod = function(options) {
 }
 
 Person.prototype.retirementWithdrawalsForIndex = function(index, retirementSpending) {
-  //spend down strategy:
-  // For each year from retirementYear -> end of Retirement
-  // 1.) withdraw up to the maximum individual deduction ~12k
-  // 2.) withdraw proportionally from the roth and traditional funds to meet
-  //     goal
-
   var traditionalBalance = this.getAccumulatingAccount(
     Constants.TRADITIONAL_401K
   ).getValueAtTime(index)
   var rothBalance = this.getAccumulatingAccount(
     Constants.ROTH_401K
   ).getValueAtTime(index)
+  var taxableIncome = this.taxableIncomeForIndex(index)
 
-  var standardDeductionWithdrawals = this.withdrawalUpToStandardDeduction(
+  var standardDeductionWithdrawals = this.withdrawalUpToStandardDeductionFromTraditional(
     retirementSpending,
     traditionalBalance,
     rothBalance
@@ -97,7 +93,9 @@ Person.prototype.retirementWithdrawalsForIndex = function(index, retirementSpend
     remainingIncomeToFill,
     remainingFundsAvailable
   )
-
+  //Need to account for the delta between gross income and net income
+  //created by the fact that we pay federal and state income taxes on traditional
+  //withdrawals
   traditionalWithdrawals = this.proportionalWithdrawals(
     traditionalBalance,
     traditionalWithdrawals,
@@ -109,7 +107,7 @@ Person.prototype.retirementWithdrawalsForIndex = function(index, retirementSpend
   this.createRothWithdrawal(rothWithdrawals, index, index)
 }
 
-Person.prototype.withdrawalUpToStandardDeduction = function(retirementSpending, traditionalBalance, rothBalance) {
+Person.prototype.withdrawalUpToStandardDeductionFromTraditional = function(retirementSpending, traditionalBalance, rothBalance) {
   var traditionalWithdrawals = 0
   var rothWithdrawals = 0
 
@@ -152,7 +150,6 @@ Person.prototype.proportionalWithdrawals = function(balance, withdrawals, income
 
 Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount, targetAccount) {
   //TODO: Transition to es6 and start using default parameters
-  var period = endYear - startYear
   //lodash range is non-inclusive of the "end" parameter
   _.forEach(_.range(startYear, endYear + 1), (timeIndex) => {
     targetAccount.createInFlow(timeIndex, value, sourceAccount)
@@ -216,6 +213,18 @@ Person.prototype.createFederalIncomeTaxFlows = function(value, startYear, endYea
 Person.prototype.createFederalIncomeWithHolding = function(startYear, endYear) {
   var indexes = _.range(startYear, endYear + 1)
 
+
+  _.forEach(indexes, (timeIndex) => {
+    var taxableIncome = this.taxableIncomeForIndex(timeIndex)
+    var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome)
+
+    this.createFederalIncomeTaxFlows(federalIncomeTax, timeIndex, timeIndex)
+  })
+}
+
+//TODO: unit testing for this change
+Person.prototype.taxableIncomeForIndex = function(timeIndex) {
+  //TODO: extract this to a class constant or something more efficient
   var incomes =  [
     this.getTaxCategory(Constants.TRADITIONAL_WITHDRAWAL),
     this.getTaxCategory(Constants.WAGES_AND_COMPENSATION)
@@ -226,26 +235,19 @@ Person.prototype.createFederalIncomeWithHolding = function(startYear, endYear) {
     // this.getAccumulatingAccount(Constants.TRADITIONAL_IRA),
     this.getAccumulatingAccount(Constants.TRADITIONAL_401K)
   ]
-  this.getTaxCategory(Constants.WAGES_AND_COMPENSATION).getInFlowValueAtTime(0)
-  _.forEach(indexes, (timeIndex) => {
-    var totalIncome = _.reduce(incomes, (rollingIncome, account) => {
 
-      return rollingIncome + account.getInFlowValueAtTime(timeIndex)
-    }, 0)
+  var totalIncome = _.reduce(incomes, (rollingIncome, account) => {
+    return rollingIncome + account.getInFlowValueAtTime(timeIndex)
+  }, 0)
 
 
-    var totalDeductions = _.reduce(deductions, (rollingDeductions, deduction) => {
-      return rollingDeductions + deduction.getInFlowValueAtTime(timeIndex)
-    }, 0)
+  var totalDeductions = _.reduce(deductions, (rollingDeductions, deduction) => {
+    return rollingDeductions + deduction.getInFlowValueAtTime(timeIndex)
+  }, 0)
 
-    //TODO: Testing for this change
-    totalDeductions += Constants.STANDARD_DEDUCTION
+  totalDeductions += Constants.STANDARD_DEDUCTION
 
-    var taxableIncome = totalIncome - totalDeductions
-    var federalIncomeTax = TaxCalculator.federalIncomeTax(taxableIncome)
-
-    this.createFederalIncomeTaxFlows(federalIncomeTax, timeIndex, timeIndex)
-  })
+  return (totalIncome - totalDeductions)
 }
 
 Person.prototype.createFederalInsuranceContributions = function() {
