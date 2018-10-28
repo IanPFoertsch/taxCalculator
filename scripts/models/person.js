@@ -72,81 +72,57 @@ Person.prototype.retirementWithdrawalsForIndex = function(index, retirementSpend
   ).getValueAtTime(index)
   var taxableIncome = this.taxableIncomeForIndex(index)
 
-  var standardDeductionWithdrawals = this.withdrawalUpToStandardDeductionFromTraditional(
+  var traditionalWithdrawals = WithdrawalCalculator.withdrawalUpToStandardDeductionFromTraditional(
+    taxableIncome,
     retirementSpending,
-    traditionalBalance,
-    rothBalance
+    traditionalBalance
   )
 
-  var traditionalWithdrawals = standardDeductionWithdrawals[0]
-  var rothWithdrawals = standardDeductionWithdrawals[1]
+  var rothWithdrawals = 0
 
   //withdraw proporitionally to reach the remainingIncome
-  var totalWithdrawals = traditionalWithdrawals + rothWithdrawals
+  var totalWithdrawals = traditionalWithdrawals
   var remainingIncomeToFill = retirementSpending - totalWithdrawals
   var remainingFundsAvailable = (rothBalance + traditionalBalance) -
     totalWithdrawals
 
-  rothWithdrawals = this.proportionalWithdrawals(
-    rothBalance,
-    rothWithdrawals,
-    remainingIncomeToFill,
-    remainingFundsAvailable
-  )
-  //Need to account for the delta between gross income and net income
-  //created by the fact that we pay federal and state income taxes on traditional
-  //withdrawals
-  traditionalWithdrawals = this.proportionalWithdrawals(
+  var traditionalIncomeGoal = WithdrawalCalculator.proportionalWithdrawals(
     traditionalBalance,
     traditionalWithdrawals,
     remainingIncomeToFill,
     remainingFundsAvailable
   )
 
+  var remainingTraditionalIncomeToFill = traditionalIncomeGoal - traditionalWithdrawals
+
+  var traditionalWithdrawalsToGoal = WithdrawalCalculator.traditionalWithdrawalsToGoal(
+    0, //Refactor out this parameter we don't end up needing
+    0, //Replace this with current taxable income pre-withdrawals
+    remainingTraditionalIncomeToFill
+  )
+
+  if ((traditionalWithdrawals + traditionalWithdrawalsToGoal) > traditionalBalance) {
+    traditionalWithdrawals = traditionalBalance
+  } else {
+    traditionalWithdrawals = traditionalWithdrawals + traditionalWithdrawalsToGoal
+  }
+  
   this.createTraditionalWithdrawal(traditionalWithdrawals, index, index)
-  this.createRothWithdrawal(rothWithdrawals, index, index)
-}
+  var updatedTaxableIncome = this.taxableIncomeForIndex(index)
 
-Person.prototype.withdrawalUpToStandardDeductionFromTraditional = function(retirementSpending, traditionalBalance, rothBalance) {
-  var traditionalWithdrawals = 0
-  var rothWithdrawals = 0
+  var netIncome = updatedTaxableIncome - TaxCalculator.federalIncomeTax(updatedTaxableIncome)
 
-  if (retirementSpending > Constants.STANDARD_DEDUCTION) {
-    if (traditionalBalance > Constants.STANDARD_DEDUCTION) {
-      traditionalWithdrawals = Constants.STANDARD_DEDUCTION
-    } else {
-      traditionalWithdrawals = traditionalBalance
-    }
-  }
-  else { //retirementSpending < STANDARD_DEDUCTION
-    if (traditionalBalance > retirementSpending) {
-      traditionalWithdrawals = retirementSpending
-    } else { // we don't have enough money to fill spending from trad funds alone
-      traditionalWithdrawals =  traditionalBalance
-      var gap = retirementSpending - traditionalBalance
-      rothWithdrawals = gap > rothBalance ? rothBalance : gap
-    }
+  remainingIncomeToFill = remainingIncomeToFill - netIncome
+
+  if(remainingIncomeToFill > rothBalance) {
+    rothWithdrawals = rothBalance
+  } else {
+    rothWithdrawals = remainingIncomeToFill
   }
 
-  return [traditionalWithdrawals, rothWithdrawals]
+
+  this.createRothWithdrawal(rothWithdrawals - netIncome, index, index)
 }
-
-Person.prototype.proportionalWithdrawals = function(balance, withdrawals, incomeToFill, remainingFunds) {
-  var updatedWithdrawals = withdrawals
-  var proportion = (balance - withdrawals) / remainingFunds
-  if ((balance - withdrawals) > 0) {
-    var additionalWithdrawals = incomeToFill * proportion
-
-    if (additionalWithdrawals > (balance - withdrawals)) {
-      additionalWithdrawals = (balance - withdrawals)
-    }
-
-    updatedWithdrawals = withdrawals + additionalWithdrawals
-  }
-  return updatedWithdrawals
-}
-
-
 
 Person.prototype.createFlows = function(value, startYear, endYear, sourceAccount, targetAccount) {
   //TODO: Transition to es6 and start using default parameters
@@ -246,8 +222,9 @@ Person.prototype.taxableIncomeForIndex = function(timeIndex) {
   }, 0)
 
   totalDeductions += Constants.STANDARD_DEDUCTION
+  var taxableIncome = (totalIncome - totalDeductions)
 
-  return (totalIncome - totalDeductions)
+  return taxableIncome < 0 ? 0 : taxableIncome
 }
 
 Person.prototype.createFederalInsuranceContributions = function() {

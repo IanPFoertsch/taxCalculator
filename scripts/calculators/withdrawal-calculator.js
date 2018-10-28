@@ -19,8 +19,23 @@ WithdrawalCalculator.traditionalWithdrawalsToGoal = function(
     currentTaxes = TaxCalculator.federalIncomeTax(taxableIncome + additionalTraditionalWithdrawals)
     currentNetIncome = (taxExemptIncome + taxableIncome + additionalTraditionalWithdrawals) - currentTaxes
   }
-
   return additionalTraditionalWithdrawals
+}
+
+WithdrawalCalculator.proportionalWithdrawals = function(balance, withdrawals, incomeToFill, remainingFunds) {
+  var updatedWithdrawals = withdrawals
+  var proportion = (balance - withdrawals) / remainingFunds
+  if ((balance - withdrawals) > 0) {
+    var additionalWithdrawals = incomeToFill * proportion
+
+    if (additionalWithdrawals > (balance - withdrawals)) {
+      additionalWithdrawals = (balance - withdrawals)
+    }
+
+    updatedWithdrawals = withdrawals + additionalWithdrawals
+  }
+
+  return updatedWithdrawals
 }
 
 

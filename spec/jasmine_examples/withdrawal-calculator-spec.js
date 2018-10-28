@@ -97,4 +97,8 @@ describe('WithdrawalCalculator', function() {
       })
     })
   })
+
+  describe('proportionalWithdrawals', () => {
+    //TODO: Add test coverage
+  })
 })

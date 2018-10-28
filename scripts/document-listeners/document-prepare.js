@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { label: Constants.CAREER_LENGTH, type: 'number', default: 20},
     { label: Constants.AGE, type: 'number', default: 30},
     { label: Constants.RETIREMENT_SPENDING, type: 'number', default: 7000},
-    { label: Constants.RETIREMENT_LENGTH, type: 'number', default: 30},
+    { label: Constants.RETIREMENT_LENGTH, type: 'number', default: 10},
   ]
 
   var inputTable =  new InputTableElement({

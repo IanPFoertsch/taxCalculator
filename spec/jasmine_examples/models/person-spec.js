@@ -1,4 +1,3 @@
-var Account = Models.Account
 var Expense = Models.Expense
 var Person = Models.Person
 var CashFlow = Models.CashFlow
@@ -7,6 +6,7 @@ var AccumulatingAccount = Models.AccumulatingAccount
 var TaxCategory = Models.TaxCategory
 var PersonDataAdapter = Adapters.PersonDataAdapter
 var TaxCalculator = Calculator.TaxCalculator
+var WithdrawalCalculator = Calculator.WithdrawalCalculator
 
 describe('Person', function() {
   var person
@@ -297,6 +297,7 @@ describe('Person', function() {
       person[functionName]()
 
       var expense = person.getExpense(expenseIdentifier)
+
       _.forEach(_.range(0, maxTime + 1), (index) => {
         var contribution = expense.contributions[index][0]
         expect(contribution.value).toEqual(expectedExpense)
@@ -313,6 +314,10 @@ describe('Person', function() {
       })
     })
   }
+
+  describe('taxableIncomeForIndex', () => {
+    //TODO: Fill in with test cases
+  })
 
   describe('createFederalIncomeWithHolding', () => {
     var maxTime = 10
@@ -679,14 +684,13 @@ describe('Person', function() {
 
     })
 
-    describe('with available traditional funds', () => {
-
+    fdescribe('with available traditional funds', () => {
       it('accounts for federal income tax withholding when calculating the withdrawal from traditional funds', () => {
 
       })
 
       describe('and a spending goal less than the standard deduction', () => {
-        let traditional401kValue = 10000
+        let traditional401kValue = 11000
 
         beforeEach(() => {
           constructSpies(
@@ -702,7 +706,6 @@ describe('Person', function() {
           beforeEach(()=> {
             retirementSpending = traditional401kValue - 1000
           })
-
 
           it('creates a traditional funds withdrawal up to the available spending goal', () => {
             person.createSpendDownPeriod({
@@ -733,33 +736,80 @@ describe('Person', function() {
 
       describe('with a spending goal more than the standard deduction', () => {
         beforeEach(()=> {
-          traditional401kValue = Constants.STANDARD_DEDUCTION + 1000
-          retirementSpending = traditional401kValue + 1000
-
-          constructSpies(
-            age,
-            workingPeriod,
-            retirementLength,
-            traditional401kValue,
-            0
-          )
+          traditional401kValue = Constants.STANDARD_DEDUCTION + 2000
         })
 
-        it('a creates a traditional funds withdrawal up to the available traditional funds', () => {
-          person.createSpendDownPeriod({
-            retirementSpending: retirementSpending,
-            retirementLength: retirementLength
+        describe('and more than the available traditional funds', () => {
+          beforeEach(()=> {
+            retirementSpending = traditional401kValue + 1000
+
+            constructSpies(
+              age,
+              workingPeriod,
+              retirementLength,
+              traditional401kValue,
+              0
+            )
           })
 
-          createsTraditionalWithdrawal(traditional401kValue)
+          it('a creates a traditional funds withdrawal up to the available traditional funds', () => {
+            person.createSpendDownPeriod({
+              retirementSpending: retirementSpending,
+              retirementLength: retirementLength
+            })
+
+            createsTraditionalWithdrawal(traditional401kValue)
+          })
+        })
+
+        describe('and less than the available traditional funds', () => {
+          let traditionalWithdrawalsToGoal
+
+          beforeEach(()=> {
+            retirementSpending = traditional401kValue - 1000
+            traditionalWithdrawalsToGoal = traditional401kValue - Constants.STANDARD_DEDUCTION - 500
+
+            constructSpies(
+              age,
+              workingPeriod,
+              retirementLength,
+              traditional401kValue,
+              0
+            )
+
+            spyOn(WithdrawalCalculator, 'proportionalWithdrawals')
+              .and
+              .returnValue(retirementSpending - Constants.STANDARD_DEDUCTION)
+
+            spyOn(WithdrawalCalculator, 'traditionalWithdrawalsToGoal')
+              .and
+              .returnValue(traditionalWithdrawalsToGoal)
+          })
+
+          it('queries the withdrawal calculator and creates a withdrawal accounting for income tax', () => {
+            person.createSpendDownPeriod({
+              retirementSpending: retirementSpending,
+              retirementLength: retirementLength
+            })
+
+            createsTraditionalWithdrawal(Constants.STANDARD_DEDUCTION + traditionalWithdrawalsToGoal)
+          })
         })
       })
 
       describe('and available roth funds', () => {
         describe('when the spending goal is less than the standard deduction', () => {
           describe('and the available traditional funds are less than the spending goal', () => {
-            describe('and the roth balance exceeds the income gap', () => {
+            var traditionalWithdrawalsToGoal
 
+            beforeEach(()=> {
+              traditionalWithdrawalsToGoal = 4000
+
+              spyOn(WithdrawalCalculator, 'traditionalWithdrawalsToGoal').and.returnValue(traditionalWithdrawalsToGoal)
+              spyOn(person, 'taxableIncomeForIndex').and.returnValue(0)
+            })
+
+            describe('and the roth balance exceeds the income gap', () => {
               beforeEach(()=> {
                 retirementSpending = 10000
                 traditional401kValue = 4000
@@ -794,10 +844,12 @@ describe('Person', function() {
             })
 
             describe('and the roth balance is insufficient to fill the gap', () => {
+
               beforeEach(()=> {
                 retirementSpending = 10000
                 traditional401kValue = 4000
                 roth401kValue = 5000
+                traditionalWithdrawalsToGoal = traditional401kValue
 
                 constructSpies(
                   age,
@@ -832,10 +884,15 @@ describe('Person', function() {
         describe('and the spending goal is more than the standard deduction', () => {
           describe('and there are sufficient funds to meet the spending goal', () => {
             describe('and traditional funds exceed the standard deduction ', () => {
+              var federalIncomeTax
+              var traditionalTaxableIncome
               beforeEach(()=> {
                 retirementSpending = Constants.STANDARD_DEDUCTION + 4000
                 traditional401kValue = retirementSpending
                 roth401kValue = retirementSpending
+
+                traditionalTaxableIncome = 900
+                federalIncomeTax = 100
 
                 constructSpies(
                   age,
@@ -844,6 +901,10 @@ describe('Person', function() {
                   traditional401kValue,
                   roth401kValue
                 )
+
+                spyOn(person, 'taxableIncomeForIndex').and.returnValues(0, traditionalTaxableIncome, 0, traditionalTaxableIncome, 0, traditionalTaxableIncome, 0, traditionalTaxableIncome, 0, traditionalTaxableIncome)
+                spyOn(TaxCalculator, 'federalIncomeTax').and.returnValue(federalIncomeTax)
+                spyOn(WithdrawalCalculator, 'traditionalWithdrawalsToGoal').and.returnValue(traditionalTaxableIncome)
               })
 
               it('withdraws up to standard deduction from traditional funds , and the divides the remainder from both basis types', () => {
@@ -854,8 +915,8 @@ describe('Person', function() {
 
                 //magic numbers representing spending up to the standard deduction from
                 //traditional funds, then withdrawing proportionally between roth and traditional
-                let traditionalSpending = 12800
-                let rothSpending = 3200
+                let traditionalSpending = 12900
+                let rothSpending = 2400
 
                 createsTraditionalWithdrawal(traditionalSpending)
                 createsRothWithdrawal(rothSpending)
